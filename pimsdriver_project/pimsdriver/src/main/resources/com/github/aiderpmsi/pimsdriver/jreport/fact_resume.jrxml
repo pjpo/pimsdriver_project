@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+	name="fact_resume" pageWidth="555" pageHeight="802" columnWidth="555"
+	leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+
+	<parameter name="pmel_root" class="java.lang.Long" />
+	
+	<queryString language="SQL">
+		<![CDATA[
+WITH distinctrss AS (
+  SELECT DISTINCT numrss
+    FROM smva_rssmain_116_view
+    WHERE pmel_root = $P{pmel_root}::bigint
+)
+SELECT b.codeacte,
+       b.numghs,
+       SUM(b.quantite::integer) quantite,
+       SUM(montanttotaldepense::integer) montanttotaldepense,
+       dr.numrss IS NOT NULL hospit
+  FROM favb_rsfb_2012_view b
+  LEFT JOIN distinctrss dr ON
+       b.numrss = dr.numrss
+  WHERE b.pmel_root = $P{pmel_root}::bigint
+  GROUP BY b.codeacte, b.numghs, dr.numrss IS NOT NULL
+  ORDER BY dr.numrss IS NOT NULL DESC, b.codeacte, b.numghs;]]>
+	</queryString>
+	
+	<field name="codeacte" class="java.lang.String" />
+	<field name="numghs" class="java.lang.String" />
+	<field name="quantite" class="java.lang.Long" />
+	<field name="montanttotaldepense" class="java.lang.Long" />
+	<field name="hospit" class="java.lang.Boolean" />
+
+	<group name="hospit">
+		<groupExpression><![CDATA[$F{hospit}]]></groupExpression>
+
+		<groupHeader>
+
+			<band height="40">
+
+				<textField>
+					<reportElement x="5" y="0" width="545" height="20" />
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Serif" size="10" isBold="true" />
+					</textElement>
+					<textFieldExpression><![CDATA[$F{hospit} ? "Avec RSS" : "Sans RSS"]]></textFieldExpression>
+				</textField>
+
+				<staticText>
+					<reportElement x="5" y="24" width="135" height="16" />
+					<textElement verticalAlignment="Middle">
+						<font fontName="DejaVu Serif" size="10" />
+						<paragraph leftIndent="2" rightIndent="2" />
+					</textElement>
+					<text><![CDATA[Acte]]></text>
+				</staticText>
+
+				<staticText>
+					<reportElement x="141" y="24" width="199" height="16" />
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="DejaVu Serif" size="10" />
+						<paragraph leftIndent="2" rightIndent="2" />
+					</textElement>
+					<text><![CDATA[Quantité]]></text>
+				</staticText>
+
+				<staticText>
+					<reportElement x="340" y="24" width="210" height="16" />
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="DejaVu Serif" size="10" />
+						<paragraph leftIndent="2" rightIndent="2" />
+					</textElement>
+					<text><![CDATA[Montant Total Dépense]]></text>
+				</staticText>
+
+				<frame>
+					<reportElement x="0" y="0" width="555" height="40" />
+					<box>
+						<leftPen lineWidth="1.0" />
+						<rightPen lineWidth="1.0" />
+					</box>
+				</frame>
+
+			</band>
+		</groupHeader>
+	</group>
+
+	<background>
+		<band splitType="Stretch" />
+	</background>
+
+	<title>
+		<band height="35">
+
+			<staticText>
+				<reportElement x="5" y="5" width="545" height="20" />
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="16" />
+				</textElement>
+				<text><![CDATA[Récapitulatif :]]></text>
+			</staticText>
+
+			<frame>
+				<reportElement x="0" y="0" width="555" height="35" />
+				<box>
+					<topPen lineWidth="1.0" />
+					<leftPen lineWidth="1.0" />
+					<rightPen lineWidth="1.0" />
+				</box>
+			</frame>
+
+		</band>
+	</title>
+
+	<detail>
+
+		<band height="16" splitType="Stretch">
+
+			<textField>
+				<reportElement x="5" y="0" width="135" height="16" />
+				<box>
+					<topPen lineWidth="1.0" />
+					<bottomPen lineWidth="1.0" />
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="10" />
+					<paragraph leftIndent="2" rightIndent="2" />
+				</textElement>
+				<textFieldExpression><![CDATA[$F{codeacte}]]></textFieldExpression>
+			</textField>
+
+			<textField>
+				<reportElement x="140" y="0" width="200" height="16" />
+				<box>
+					<topPen lineWidth="1.0" />
+					<bottomPen lineWidth="1.0" />
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="DejaVu Sans Mono" size="10"/>
+					<paragraph leftIndent="2" rightIndent="2" />
+				</textElement>
+				<textFieldExpression><![CDATA[$F{quantite}]]></textFieldExpression>
+			</textField>
+
+			<textField>
+				<reportElement x="340" y="0" width="210" height="16" />
+				<box>
+					<topPen lineWidth="1.0" />
+					<bottomPen lineWidth="1.0" />
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="DejaVu Sans Mono" size="10"/>
+					<paragraph leftIndent="2" rightIndent="2"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new DecimalFormat("+#,##0.00;-#,##0.00", new DecimalFormatSymbols(Locale.FRANCE)).format(new BigDecimal($F{montanttotaldepense}).divide(new BigDecimal(100)))]]></textFieldExpression>
+			</textField>
+
+			<frame>
+				<reportElement x="0" y="0" width="555" height="16" />
+				<box>
+					<leftPen lineWidth="1.0" />
+					<rightPen lineWidth="1.0" />
+				</box>
+			</frame>
+		</band>
+	</detail>
+
+	<summary>
+		<band height="30" splitType="Stretch">
+
+			<staticText>
+				<reportElement x="5" y="5" width="545" height="20" />
+				<textElement textAlignment="Justified">
+					<font fontName="DejaVu Serif" size="8" />
+					<paragraph firstLineIndent="10" />
+				</textElement>
+				<text><![CDATA[Attention, ce rapport ne rejette aucune facture. Pour comparer avec les tableaux DATIM  de l'ATIH, il faut également enlever de ce rapport les lignes B rejetées dans la valorisation.]]></text>
+			</staticText>
+
+			<frame>
+				<reportElement x="0" y="0" width="555" height="30" />
+				<box>
+					<leftPen lineWidth="1.0" />
+					<bottomPen lineWidth="1.0" />
+					<rightPen lineWidth="1.0" />
+				</box>
+			</frame>
+		</band>
+	</summary>
+
+</jasperReport>

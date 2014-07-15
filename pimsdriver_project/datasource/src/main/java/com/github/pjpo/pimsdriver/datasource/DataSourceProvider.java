@@ -2,12 +2,12 @@ package com.github.pjpo.pimsdriver.datasource;
 
 import java.sql.Connection;
 
-import javax.ejb.Remote;
+import javax.ejb.Local;
 
 /**
  * Session Bean implementation class DataSourceProvider
  */
-@Remote
+@Local
 public interface DataSourceProvider {
 
 	public Connection getConnection();
