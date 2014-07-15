@@ -10,7 +10,6 @@ import java.util.List;
 
 import javax.servlet.ServletContext;
 
-import org.apache.commons.dbcp2.DelegatingConnection;
 import org.postgresql.largeobject.LargeObjectManager;
 
 import com.github.aiderpmsi.pimsdriver.db.vaadin.query.DBQueryBuilder;
@@ -52,9 +51,7 @@ public class UploadedPmsiDTO extends AutoCloseableDto<UploadedPmsiDTO.Query> {
 	public Boolean delete(UploadedPmsi model) throws SQLException {
 
 		// USE THE LARGE OBJECT INTERFACE FOR FILES
-		@SuppressWarnings("unchecked")
-		Connection conn = ((DelegatingConnection<Connection>) getConnection()).getInnermostDelegateInternal();
-		LargeObjectManager lom = ((org.postgresql.PGConnection)conn).getLargeObjectAPI();
+		LargeObjectManager lom = ((org.postgresql.PGConnection)getConnection()).getLargeObjectAPI();
 
 		// DELETE LARGE OBJECT IDS
 		if (model.rsfoid != null)

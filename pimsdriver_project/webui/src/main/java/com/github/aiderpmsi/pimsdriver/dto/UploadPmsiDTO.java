@@ -10,7 +10,6 @@ import java.sql.Types;
 
 import javax.servlet.ServletContext;
 
-import org.apache.commons.dbcp2.DelegatingConnection;
 import org.postgresql.largeobject.LargeObject;
 import org.postgresql.largeobject.LargeObjectManager;
 
@@ -45,9 +44,7 @@ public class UploadPmsiDTO extends AutoCloseableDto<UploadPmsiDTO.Query> {
 	public Long create(UploadPmsi model, InputStream rsf, InputStream rss) throws SQLException {
 		
 		// USE THE LARGE OBJECT INTERFACE FOR FILES
-		@SuppressWarnings("unchecked")
-		final Connection conn = ((DelegatingConnection<Connection>) getConnection()).getInnermostDelegateInternal();
-		final LargeObjectManager lom = ((org.postgresql.PGConnection)conn).getLargeObjectAPI();
+		final LargeObjectManager lom = ((org.postgresql.PGConnection)getConnection()).getLargeObjectAPI();
 
 		try {
 			// CREATES AND FILLS THE RSF LARGE OBJECT (IF IT EXISTS)

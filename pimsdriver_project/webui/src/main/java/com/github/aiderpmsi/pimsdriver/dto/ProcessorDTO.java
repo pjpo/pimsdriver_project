@@ -12,7 +12,6 @@ import java.util.Collection;
 
 import javax.servlet.ServletContext;
 
-import org.postgresql.PGConnection;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.largeobject.LargeObjectManager;
 
@@ -152,69 +151,61 @@ public class ProcessorDTO extends AutoCloseableDto<ProcessorDTO.Query> {
 
 	public void processPmsi(String type, Collection<LineHandler> lhs, SimpleParserFactory pf, Long oid) throws SQLException {
 		
-		Connection innerCon;
+		// GETS LARGE OBJECT API IF CONNECTION IS POSTGRESQL
+		LargeObjectManager lom = ((org.postgresql.PGConnection)getConnection()).getLargeObjectAPI();
+		
+		long time1 = System.currentTimeMillis();
+		
+		try {
 
-		if(getConnection() instanceof DelegatingConnection
-				&& (innerCon = ((DelegatingConnection<?>) getConnection()).getInnermostDelegateInternal()) instanceof PGConnection) {
-			// GETS LARGE OBJECT API IF CONNECTION IS POSTGRESQL
-			LargeObjectManager lom = ((org.postgresql.PGConnection)innerCon).getLargeObjectAPI();
-			
-			long time1 = System.currentTimeMillis();
-			
-			try {
+			// TRANSFORMS PMSI TO A READY TO IMPORT POSTGRESQL FILE
+			try (Reader dbFile = new InputStreamReader(lom.open(oid).getInputStream(), Charset.forName("UTF-8"))) {
 
-				// TRANSFORMS PMSI TO A READY TO IMPORT POSTGRESQL FILE
-				try (Reader dbFile = new InputStreamReader(lom.open(oid).getInputStream(), Charset.forName("UTF-8"))) {
+				// PARSE AND STORE PMSI
+				SimpleErrorHandler eh = new SimpleErrorHandler();
+				SimpleParser parser = pf.newParser(type, lhs, eh);
+				parser.parse(dbFile);
 
-					// PARSE AND STORE PMSI
-					SimpleErrorHandler eh = new SimpleErrorHandler();
-					SimpleParser parser = pf.newParser(type, lhs, eh);
-					parser.parse(dbFile);
-
-					// THROW ERROR IF AN ERROR HAPPENED
-					if (eh.getErrors().size() != 0) {
-						IOException e = null;
-						int i = 0;
-						for (Error ex : eh.getErrors()) {
-							if (i++ == 0)
-								e = new IOException(ex.msg + " at line " + ex.line);
-							else
-								e.addSuppressed(new IOException(ex.msg + " at line " + ex.line));
-						}
-						throw e;
+				// THROW ERROR IF AN ERROR HAPPENED
+				if (eh.getErrors().size() != 0) {
+					IOException e = null;
+					int i = 0;
+					for (Error ex : eh.getErrors()) {
+						if (i++ == 0)
+							e = new IOException(ex.msg + " at line " + ex.line);
+						else
+							e.addSuppressed(new IOException(ex.msg + " at line " + ex.line));
 					}
-					
+					throw e;
 				}
-			
-				// BULK IMPORT TO PGSQL
-				String pmsiQuery = "COPY pmel_temp (pmel_root, pmel_position, pmel_parent, pmel_type, pmel_line, pmel_content) "
-						+ "FROM STDIN WITH DELIMITER '|'";
-				String groupQuery = "COPY pmgr_temp (pmel_position, pmgr_racine, pmgr_modalite, pmgr_gravite, pmgr_erreur) "
-						+ "FROM STDIN WITH DELIMITER '|'";
-
-				final Connection conn = ((DelegatingConnection<?>) getConnection()).getInnermostDelegateInternal();
-				final CopyManager cm = new CopyManager((org.postgresql.core.BaseConnection)conn);
 				
-				for (final LineHandler lineHandler : lhs) {
-					if (lineHandler instanceof PmsiLineHandler) {
-						((PmsiLineHandler) lineHandler).applyOnFile(
-								(reader) -> cm.copyIn(pmsiQuery, reader));
-					} else if (lineHandler instanceof GroupHandler) {
-						((GroupHandler) lineHandler).applyOnFile(
-								(reader) -> cm.copyIn(groupQuery, reader));
-					}
-				}
+			}
+		
+			// BULK IMPORT TO PGSQL
+			String pmsiQuery = "COPY pmel_temp (pmel_root, pmel_position, pmel_parent, pmel_type, pmel_line, pmel_content) "
+					+ "FROM STDIN WITH DELIMITER '|'";
+			String groupQuery = "COPY pmgr_temp (pmel_position, pmgr_racine, pmgr_modalite, pmgr_gravite, pmgr_erreur) "
+					+ "FROM STDIN WITH DELIMITER '|'";
 
-			} catch (IOException e) {
-				throw new SQLException(e);
+			final CopyManager cm = new CopyManager((org.postgresql.core.BaseConnection)getConnection());
+			
+			for (final LineHandler lineHandler : lhs) {
+				if (lineHandler instanceof PmsiLineHandler) {
+					((PmsiLineHandler) lineHandler).applyOnFile(
+							(reader) -> cm.copyIn(pmsiQuery, reader));
+				} else if (lineHandler instanceof GroupHandler) {
+					((GroupHandler) lineHandler).applyOnFile(
+							(reader) -> cm.copyIn(groupQuery, reader));
+				}
 			}
 
-			final long time2 = System.currentTimeMillis();
-			System.out.println("Difference time : " + (time2 - time1));
-
-		} else {
-			throw new RuntimeException("This function needs a Delegated PGConnection");
+		} catch (IOException e) {
+			throw new SQLException(e);
 		}
+
+		final long time2 = System.currentTimeMillis();
+		System.out.println("Difference time : " + (time2 - time1));
+
 	}
 
 	public void setStatus(Long recordid, Status successed, String finess,
