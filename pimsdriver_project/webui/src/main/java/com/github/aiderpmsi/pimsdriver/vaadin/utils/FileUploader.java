@@ -27,6 +27,7 @@ public class FileUploader implements Receiver {
 		resourceName = "/tmp/uploads/" + type + "_" + Integer.toHexString(window.hashCode());
     	// REMOVES IT FROM FILESYSTEM IF ALREADY EXISTS
     	new File(resourceName).delete();
+    	
     }
     
 	@Override
