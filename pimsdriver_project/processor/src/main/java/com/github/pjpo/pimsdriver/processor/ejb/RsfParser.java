@@ -1,4 +1,4 @@
-package com.github.pjpo.pimsdriver.processor;
+package com.github.pjpo.pimsdriver.processor.ejb;
 
 import java.io.Reader;
 import java.io.Writer;

@@ -65,6 +65,9 @@
 				<version>2.3</version>
 				<configuration>
 					<ejbVersion>3.1</ejbVersion>
+					<clientIncludes>
+		            	<clientInclude>com/github/pjpo/pimsdriver/processor/ejb/RsfParser.class</clientInclude>
+    				</clientIncludes>
 					<generateClient>true</generateClient>
 				</configuration>
 			</plugin>
