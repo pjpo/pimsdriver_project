@@ -2,30 +2,29 @@ package com.github.aiderpmsi.pimsdriver.vaadin.utils.aop;
 
 import java.util.function.Function;
 
-import com.github.aiderpmsi.pimsdriver.db.actions.ActionException;
 import com.vaadin.ui.Notification;
 
 public class ActionEncloser<R> {
 
-	public static void executeVoid(final Function<ActionException, String> errorMsgSupplier,
+	public static void executeVoid(final Function<Throwable, String> errorMsgSupplier,
 			final ExecuterVoid actionSupplier) {
 		try {
 			actionSupplier.execute();
-		} catch (ActionException e) {
+		} catch (Throwable e) {
 			showError(errorMsgSupplier.apply(e));
 		}
 	}
 
 	@FunctionalInterface
 	public interface ExecuterVoid {
-		public void execute() throws ActionException;
+		public void execute() throws Throwable;
 	}
 
-	public static <R> R execute(final Function<ActionException, String> errorMsgSupplier,
+	public static <R> R execute(final Function<Throwable, String> errorMsgSupplier,
 			final Executer<R> actionSupplier) {
 		try {
 			return actionSupplier.execute();
-		} catch (ActionException e) {
+		} catch (Throwable e) {
 			showError(errorMsgSupplier.apply(e));
 		}
 		return null;
@@ -33,7 +32,7 @@ public class ActionEncloser<R> {
 
 	@FunctionalInterface
 	public interface Executer<R> {
-		public R execute() throws ActionException;
+		public R execute() throws Throwable;
 	}
 	
 	private static void showError(final String message) {

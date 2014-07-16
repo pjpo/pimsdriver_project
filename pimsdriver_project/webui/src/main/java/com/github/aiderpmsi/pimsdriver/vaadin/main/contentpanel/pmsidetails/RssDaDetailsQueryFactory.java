@@ -66,7 +66,7 @@ public class RssDaDetailsQueryFactory implements QueryFactory {
 			}
 
 			@Override
-			public String loadBeansError(final Exception e) {
+			public String loadBeansError(final Throwable e) {
 				return "Erreur de lecture de la liste des factures B";
 			}
 
@@ -76,7 +76,7 @@ public class RssDaDetailsQueryFactory implements QueryFactory {
 			}
 
 			@Override
-			public String sizeError(final Exception e) {
+			public String sizeError(final Throwable e) {
 				return "Erreur de lecture de la liste des factures B";
 			}
 		};

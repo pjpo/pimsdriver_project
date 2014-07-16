@@ -35,14 +35,14 @@
 		<dependencies>
 
 			<dependency>
-				<groupId>com.github.pjpo</groupId>
+				<groupId>com.github.pjpo.pimsdriver</groupId>
 				<artifactId>business</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 				<type>ear</type>
 			</dependency>
 
 			<dependency>
-				<groupId>com.github.pjpo</groupId>
+				<groupId>com.github.pjpo.pimsdriver</groupId>
 				<artifactId>processor</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 				<type>ejb</type>

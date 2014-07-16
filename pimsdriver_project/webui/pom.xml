@@ -83,24 +83,39 @@
 			<artifactId>vaadin-lazyquerycontainer</artifactId>
 			<version>2.1.15</version>
 		</dependency>
+
 		<dependency>
 			<groupId>com.github.aiderpmsi</groupId>
 			<artifactId>pims</artifactId>
 			<version>1.9.0-SNAPSHOT</version>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
+
 		<dependency>
 			<groupId>net.sf.jasperreports</groupId>
 			<artifactId>jasperreports</artifactId>
 			<version>5.6.0</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.github.pjpo.pimsdriver</groupId>
 			<artifactId>datasource</artifactId>
+			<version>0.0.1-SNAPSHOT</version><!--$NO-MVN-MAN-VER$ -->
 			<type>ejb-client</type>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>com.github.pjpo.pimsdriver</groupId>
+			<artifactId>processor</artifactId>
+			<version>0.0.1-SNAPSHOT</version><!--$NO-MVN-MAN-VER$ -->
+			<type>ejb-client</type>
+		</dependency>
+
 	</dependencies>
 
 	<build>

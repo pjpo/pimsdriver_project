@@ -21,9 +21,9 @@ public class BaseQuery<R> implements Query {
 		public void initOrders(LinkedList<Entry<Object, Boolean>> orderbys);
 		public R constructBean();
 		public List<R> loadBeans(List<Filter> filters, List<OrderBy> orderBys, int startIndex, int count) throws ActionException;
-		public String loadBeansError(Exception e);
+		public String loadBeansError(Throwable exception);
 		public int size(List<Filter> Filters) throws ActionException;
-		public String sizeError(Exception e);
+		public String sizeError(Throwable exception);
 	}
 	
 	private final List<Filter> sqlFilters;

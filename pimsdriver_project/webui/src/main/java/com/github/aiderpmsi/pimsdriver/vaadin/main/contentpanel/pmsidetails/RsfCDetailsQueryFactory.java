@@ -69,7 +69,7 @@ public class RsfCDetailsQueryFactory implements QueryFactory {
 			}
 
 			@Override
-			public String loadBeansError(Exception e) {
+			public String loadBeansError(Throwable e) {
 				return "Erreur de lecture de la liste des factures";
 			}
 
@@ -79,7 +79,7 @@ public class RsfCDetailsQueryFactory implements QueryFactory {
 			}
 
 			@Override
-			public String sizeError(Exception e) {
+			public String sizeError(Throwable e) {
 				return "Erreur de lecture de la liste des factures";
 			}
 		};
