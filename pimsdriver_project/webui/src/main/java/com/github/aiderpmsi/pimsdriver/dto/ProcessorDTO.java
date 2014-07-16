@@ -15,6 +15,7 @@ import javax.servlet.ServletContext;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.largeobject.LargeObjectManager;
 
+import com.github.aiderpmsi.pims.parser.utils.PimsParserFromReader;
 import com.github.aiderpmsi.pims.parser.utils.SimpleParser;
 import com.github.aiderpmsi.pims.parser.utils.SimpleParserFactory;
 import com.github.aiderpmsi.pims.parser.utils.Utils.LineHandler;
@@ -164,7 +165,7 @@ public class ProcessorDTO extends AutoCloseableDto<ProcessorDTO.Query> {
 				// PARSE AND STORE PMSI
 				SimpleErrorHandler eh = new SimpleErrorHandler();
 				SimpleParser parser = pf.newParser(type, lhs, eh);
-				parser.parse(dbFile);
+				parser.parse(new PimsParserFromReader(dbFile));
 
 				// THROW ERROR IF AN ERROR HAPPENED
 				if (eh.getErrors().size() != 0) {

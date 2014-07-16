@@ -61,7 +61,7 @@ public class PmsiPendingQueryFactory implements QueryFactory {
 			}
 
 			@Override
-			public String loadBeansError(Exception e) {
+			public String loadBeansError(Throwable e) {
 				return "Erreur de lecture de la liste de fichiers";
 			}
 
@@ -71,7 +71,7 @@ public class PmsiPendingQueryFactory implements QueryFactory {
 			}
 
 			@Override
-			public String sizeError(final Exception e) {
+			public String sizeError(final Throwable e) {
 				return "Erreur de lecture de la liste de fichiers";
 			}
 		};
