@@ -17,6 +17,9 @@
         <dependent-module archiveName="flyway-core-3.0.jar" deploy-path="/lib" handle="module:/classpath/var/M2_REPO/org/flywaydb/flyway-core/3.0/flyway-core-3.0.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="processor-0.0.1-SNAPSHOT.jar" deploy-path="/" handle="module:/classpath/var/M2_REPO/com/github/pjpo/processor/0.0.1-SNAPSHOT/processor-0.0.1-SNAPSHOT.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <dependent-module archiveName="webui-0.0.1-SNAPSHOT.war" deploy-path="/" handle="module:/resource/webui/webui">
             <dependency-type>uses</dependency-type>
         </dependent-module>
