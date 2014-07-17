@@ -23,7 +23,7 @@ import com.github.aiderpmsi.pims.parser.utils.SimpleParser;
 import com.github.aiderpmsi.pims.parser.utils.SimpleParserFactory;
 import com.github.pjpo.pimsdriver.processor.RsfLineHandler;
 
-@Stateful
+@Stateful(passivationCapable=true)
 public class RsfParserBean implements RsfParser {
 
 	private final static Logger LOGGER = Logger
@@ -39,8 +39,12 @@ public class RsfParserBean implements RsfParser {
 	
 	private Long endPmsiPosition = null;
 	
+	public RsfParserBean() {
+		postActivate();
+	}
+	
 	@PostActivate
-	public void construct() {
+	private void postActivate(){
 		try {
 			rsfResult = Files.createTempFile("", "");
 		} catch (Throwable e) {
@@ -89,7 +93,7 @@ public class RsfParserBean implements RsfParser {
 	}
 	
 	@PrePassivate
-	public void destroy() {
+	private void prePassivate(){
 		try {
 			Files.delete(rsfResult);
 		} catch (IOException e) {
