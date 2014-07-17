@@ -14,6 +14,7 @@ import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
 import javax.ejb.Stateful;
 
+import com.github.aiderpmsi.pims.parser.utils.PimsParserFromWriter;
 import com.github.pjpo.pimsdriver.processor.ErrorCatcher;
 import com.github.pjpo.pimsdriver.processor.ErrorCatcher.Executor;
 
@@ -55,12 +56,7 @@ public class RsfParserBean implements RsfParser {
 
 	@Override
 	public Writer getWriter() {
-		try {
-			return Files.newBufferedWriter(rsfFile, Charset.forName("UTF-8"));
-		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE, "Unable to create writer", e);
-			return null;
-		}
+		return new PimsParserFromWriter();
 	}
 
 	@Override
