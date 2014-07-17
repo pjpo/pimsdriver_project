@@ -19,14 +19,14 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.github.pjpo.pimsdriver</groupId>
+			<artifactId>datasource</artifactId>
+			<type>ejb</type>
+		</dependency>
+		<dependency>
+			<groupId>com.github.pjpo.pimsdriver</groupId>
 			<artifactId>processor</artifactId>
 			<type>ejb</type>
 		</dependency>
-	<!-- 	<dependency>
-			<groupId>com.github.pjpo.pimsdriver</groupId>
-			<artifactId>datasource</artifactId>
-			<type>ejb</type>
-		</dependency>  -->
 		<dependency>
 			<groupId>com.github.pjpo.pimsdriver</groupId>
 			<artifactId>webui</artifactId>

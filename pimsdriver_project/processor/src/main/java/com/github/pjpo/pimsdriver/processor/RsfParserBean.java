@@ -1,4 +1,4 @@
-package com.github.pjpo.pimsdriver.processor.ejb;
+package com.github.pjpo.pimsdriver.processor;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -21,7 +21,6 @@ import javax.ejb.Stateful;
 import com.github.aiderpmsi.pims.parser.utils.PimsParserFromWriter;
 import com.github.aiderpmsi.pims.parser.utils.SimpleParser;
 import com.github.aiderpmsi.pims.parser.utils.SimpleParserFactory;
-import com.github.pjpo.pimsdriver.processor.RsfLineHandler;
 
 @Stateful
 public class RsfParserBean implements RsfParser {

@@ -2,7 +2,7 @@
     <wb-module deploy-name="business-0.0.1-SNAPSHOT">
         <wb-resource deploy-path="/" source-path="/target/m2e-wtp/ear-resources"/>
         <wb-resource deploy-path="/" source-path="/src/main/application" tag="defaultRootSource"/>
-        <dependent-module archiveName="processor-0.0.1-SNAPSHOT.jar" deploy-path="/" handle="module:/resource/processor/processor">
+        <dependent-module archiveName="datasource-0.0.1-SNAPSHOT.jar" deploy-path="/" handle="module:/resource/datasource/datasource">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="javaee-api-7.0.jar" deploy-path="/lib" handle="module:/classpath/var/M2_REPO/javax/javaee-api/7.0/javaee-api-7.0.jar">
@@ -12,6 +12,12 @@
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="activation-1.1.jar" deploy-path="/lib" handle="module:/classpath/var/M2_REPO/javax/activation/activation/1.1/activation-1.1.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="flyway-core-3.0.jar" deploy-path="/lib" handle="module:/classpath/var/M2_REPO/org/flywaydb/flyway-core/3.0/flyway-core-3.0.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="processor-0.0.1-SNAPSHOT.jar" deploy-path="/" handle="module:/resource/processor/processor">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="pims-1.9.0-SNAPSHOT.jar" deploy-path="/lib" handle="module:/resource/pims/pims">
