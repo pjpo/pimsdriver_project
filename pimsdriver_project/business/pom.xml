@@ -17,11 +17,11 @@
 	</properties>
 
 	<dependencies>
-		<dependency>
+	<!-- 	<dependency>
 			<groupId>com.github.pjpo.pimsdriver</groupId>
 			<artifactId>processor</artifactId>
 			<type>ejb</type>
-		</dependency>
+		</dependency>  -->
 	<!-- 	<dependency>
 			<groupId>com.github.pjpo.pimsdriver</groupId>
 			<artifactId>datasource</artifactId>
