@@ -7,7 +7,7 @@ import javax.naming.InitialContext;
 import org.apache.commons.io.output.WriterOutputStream;
 
 import com.github.aiderpmsi.pimsdriver.vaadin.utils.aop.ActionEncloser;
-import com.github.pjpo.pimsdriver.processor.RsfParser;
+import com.github.pjpo.pimsdriver.processor.ejb.RsfParser;
 import com.vaadin.ui.Upload.Receiver;
 import com.vaadin.ui.Window;
 
