@@ -66,3 +66,30 @@
 	display: table-row;
 	background-color : white;
 }
+
+/* == UPLOAD WINDOW == */
+
+.pims-upload-vertical-layout.v-csslayout {
+	display: table;
+	width: 100%;
+}
+
+.pims-upload-vertical-layout.v-csslayout > * {
+	display:table-row;
+}
+
+.pims-upload-vertical-layout.v-csslayout > * > * {
+	display:table-cell;
+}
+
+.pims-upload-vertical-layout.v-csslayout > * > * :nth-child(1) {
+	width: 15%;
+}
+
+.pims-upload-vertical-layout.v-csslayout > * > * :nth-child(2) {
+	width: 15%;
+}
+
+.pims-upload-vertical-layout.v-csslayout > * > * :nth-child(3) {
+	width: 70%;
+}

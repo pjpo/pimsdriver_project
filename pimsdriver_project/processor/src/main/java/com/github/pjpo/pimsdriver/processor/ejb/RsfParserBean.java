@@ -69,14 +69,14 @@ public class RsfParserBean implements RsfParser {
 	
 	@Override
 	@Asynchronous
-	public Future<Collection<String>> processRsf(Reader reader) {
+	public Future<Collection<String>> process(Reader reader, Long startPmsiPosition) {
 		synchronized(writeLock) {
 			// CLOSES ALL OPENED READER
 			closeAllReaders();
 			try (final Writer writer = Files.newBufferedWriter(rsfResult, Charset.forName("UTF-8"), StandardOpenOption.TRUNCATE_EXISTING)) {
 				final SimpleParserFactory spf = new SimpleParserFactory();
 				// CREATES THE RSF LINE HANDLER
-				final RsfLineHandler handler = new RsfLineHandler(0, writer);
+				final RsfLineHandler handler = new RsfLineHandler(startPmsiPosition, writer);
 				// ERROR COLLECTOR
 				final LinkedList<String> errors = new LinkedList<>();
 				// CREATES PARSER

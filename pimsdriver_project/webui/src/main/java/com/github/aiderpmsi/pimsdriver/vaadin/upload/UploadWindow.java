@@ -79,7 +79,7 @@ public class UploadWindow extends Window {
         rssFilePicker.addProgressListener(
         		(readBytes, contentLength) -> rssProgressBar.setValue((float)readBytes / (float)contentLength));
         rssLayout.addComponent(rssProgressBar);
-        layout.addComponent(rssProgressBar);
+        layout.addComponent(rssLayout);
         
         // ADD OK BUTTON
         okButton = new Button("Valider");
