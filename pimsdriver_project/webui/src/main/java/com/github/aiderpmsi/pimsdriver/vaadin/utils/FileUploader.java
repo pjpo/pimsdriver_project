@@ -3,6 +3,7 @@ package com.github.aiderpmsi.pimsdriver.vaadin.utils;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Collection;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import javax.naming.InitialContext;
@@ -10,6 +11,7 @@ import javax.naming.InitialContext;
 import org.apache.commons.io.output.WriterOutputStream;
 
 import com.github.aiderpmsi.pimsdriver.vaadin.utils.aop.ActionEncloser;
+import com.github.pjpo.commons.ioutils.WriterToReader;
 import com.github.pjpo.pimsdriver.processor.ejb.RsfParser;
 import com.vaadin.ui.Upload.Receiver;
 import com.vaadin.ui.Window;
@@ -18,7 +20,9 @@ public class FileUploader implements Receiver {
 
 	private static final long serialVersionUID = 5675725310161340636L;
     
-	private Future<Collection<String>> asyncErrorsUpload = null;
+	private Future<Collection<String>> futureErrorsUpload = null;
+
+	private final WriterToReader wtr = new WriterToReader();
 	
 	public FileUploader(String type, Window window) {
     }
@@ -29,15 +33,19 @@ public class FileUploader implements Receiver {
 		// EJB FOR RESOURCE HANDLING
 		return ActionEncloser.execute((throwable) -> "Uploading error",
 				() -> {
-					InitialContext jndiContext = new InitialContext();
-					RsfParser rsfp = (RsfParser) jndiContext.lookup("java:global/business/processor-0.0.1-SNAPSHOT/RsfParserBean!com.github.pjpo.pimsdriver.processor.ejb.RsfParser");
-					// ENABLES RSF PROCESSING
-					asyncErrorsUpload = rsfp.processRsf();
-					return new WriterOutputStream(rsfp.getWriter(), Charset.forName("UTF-8"));
+					// ENABLES RSF PROCESSING IN PARALLEL THREAD
+					futureErrorsUpload = Executors.newSingleThreadExecutor().submit(
+							() -> {
+								InitialContext jndiContext = new InitialContext();
+								RsfParser rsfp = (RsfParser) jndiContext.lookup("java:global/business/processor-0.0.1-SNAPSHOT/RsfParserBean!com.github.pjpo.pimsdriver.processor.ejb.RsfParser");
+								return rsfp.processRsf(wtr.getReader());	
+							});
+					return new WriterOutputStream(wtr, Charset.forName("UTF-8"));
 				});
     }
 
 	public Collection<String> getErrors() {
-		return ActionEncloser.execute((throwable) -> "Uploading error", () -> asyncErrorsUpload.get());
+		return ActionEncloser.execute(
+				(throwable) -> "Uploading error", () -> futureErrorsUpload.get());
 	}
 }
