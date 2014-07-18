@@ -13,6 +13,8 @@ public interface RsfParser {
 
 	public Result getResult();
 	
+	public void remove();
+	
 	public static class Result {
 		private final String finess;
 		private final String version;

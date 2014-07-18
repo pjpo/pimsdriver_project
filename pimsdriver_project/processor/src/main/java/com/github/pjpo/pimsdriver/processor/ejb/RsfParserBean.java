@@ -18,6 +18,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.AsyncResult;
 import javax.ejb.Asynchronous;
+import javax.ejb.Remove;
 import javax.ejb.Stateful;
 
 import com.github.aiderpmsi.pims.parser.utils.PimsParserFromReader;
@@ -84,8 +85,13 @@ public class RsfParserBean implements RsfParser {
 		}
 	}
 	
+	@Remove
+	public void remove() {
+		// DO NOTHING, PREDESTROY WILL BE CALLED AUTOMATICALLY
+	}
+	
 	@PreDestroy
-	private void prePassivate(){
+	private void preDestroy(){
 		try {
 			Files.delete(rsfResult);
 		} catch (IOException e) {
