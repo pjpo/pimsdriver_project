@@ -10,9 +10,11 @@ import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.ejb.AsyncResult;
 import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
 import javax.ejb.Stateful;
@@ -50,7 +52,7 @@ public class RsfParserBean implements RsfParser {
 	}
 	
 	@Override
-	public Collection<String> processRsf(Reader reader) {
+	public Future<Collection<String>> processRsf(Reader reader) {
 		try (final Writer writer = Files.newBufferedWriter(rsfResult, Charset.forName("UTF-8"), StandardOpenOption.TRUNCATE_EXISTING)) {
 			final SimpleParserFactory spf = new SimpleParserFactory();
 			// CREATES THE RSF LINE HANDLER
@@ -66,7 +68,7 @@ public class RsfParserBean implements RsfParser {
 			finess = handler.getFiness();
 			version = handler.getVersion();
 			endPmsiPosition = handler.getPmsiPosition();
-			return errors;
+			return new AsyncResult<Collection<String>>(errors);
 		} catch (Throwable e) {
 			LOGGER.log(Level.SEVERE, "Unable to process Rsf", e);
 			return null;

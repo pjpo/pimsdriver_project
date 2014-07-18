@@ -3,7 +3,6 @@ package com.github.aiderpmsi.pimsdriver.vaadin.utils;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Collection;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import javax.naming.InitialContext;
@@ -33,13 +32,9 @@ public class FileUploader implements Receiver {
 		// EJB FOR RESOURCE HANDLING
 		return ActionEncloser.execute((throwable) -> "Uploading error",
 				() -> {
-					// ENABLES RSF PROCESSING IN PARALLEL THREAD
-					futureErrorsUpload = Executors.newSingleThreadExecutor().submit(
-							() -> {
-								InitialContext jndiContext = new InitialContext();
-								RsfParser rsfp = (RsfParser) jndiContext.lookup("java:global/business/processor-0.0.1-SNAPSHOT/RsfParserBean!com.github.pjpo.pimsdriver.processor.ejb.RsfParser");
-								return rsfp.processRsf(wtr.getReader());	
-							});
+					InitialContext jndiContext = new InitialContext();
+					RsfParser rsfp = (RsfParser) jndiContext.lookup("java:global/business/processor-0.0.1-SNAPSHOT/RsfParserBean!com.github.pjpo.pimsdriver.processor.ejb.RsfParser");
+					futureErrorsUpload = rsfp.processRsf(wtr.getReader());	
 					return new WriterOutputStream(wtr, Charset.forName("UTF-8"));
 				});
     }
