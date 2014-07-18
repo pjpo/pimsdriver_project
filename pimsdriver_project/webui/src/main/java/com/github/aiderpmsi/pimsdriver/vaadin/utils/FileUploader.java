@@ -22,25 +22,31 @@ public class FileUploader implements Receiver {
 	private Future<Collection<String>> futureErrorsUpload = null;
 
 	private final WriterToReader wtr = new WriterToReader();
+
+	private final RsfParser rsfp;
 	
 	public FileUploader(String type, Window window) {
+		// EJB FOR RESOURCE HANDLING
+		rsfp = (RsfParser) ActionEncloser.execute((throwable) -> "Uploader creation failed", () -> {
+			return new InitialContext().lookup("java:global/business/processor-0.0.1-SNAPSHOT/RsfParserBean!com.github.pjpo.pimsdriver.processor.ejb.RsfParser");});
     }
     
 	@Override
     public OutputStream receiveUpload(String filename,
                                       String mimeType) {
-		// EJB FOR RESOURCE HANDLING
+		// PROCESSES THE GIVEN FILE
+		futureErrorsUpload = rsfp.processRsf(wtr.getReader());
+		// RETURNS THE WRITER WE HAVE TO WRITE INTO
 		return ActionEncloser.execute((throwable) -> "Uploading error",
-				() -> {
-					InitialContext jndiContext = new InitialContext();
-					RsfParser rsfp = (RsfParser) jndiContext.lookup("java:global/business/processor-0.0.1-SNAPSHOT/RsfParserBean!com.github.pjpo.pimsdriver.processor.ejb.RsfParser");
-					futureErrorsUpload = rsfp.processRsf(wtr.getReader());	
-					return new WriterOutputStream(wtr, Charset.forName("UTF-8"));
-				});
+				() -> new WriterOutputStream(wtr, Charset.forName("UTF-8")));
     }
 
 	public Collection<String> getErrors() {
 		return ActionEncloser.execute(
 				(throwable) -> "Uploading error", () -> futureErrorsUpload.get());
+	}
+	
+	public void close() {
+		
 	}
 }
