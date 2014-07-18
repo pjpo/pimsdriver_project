@@ -8,36 +8,25 @@ import javax.ejb.Local;
 
 @Local
 public interface RsfParser {
-	
+
+	/** Parses asynchronously a rsf, and returns list of errors.
+	 * Beware to call get on the resulting future before acessing ejb get
+	 * else you can get older values (from another parsing)
+	 * @param reader
+	 * @return
+	 */
 	public Future<Collection<String>> processRsf(Reader reader);
 
-	public Result getResult();
-	
+	/**
+	 * Calls stateful bean removal
+	 */
 	public void remove();
 	
-	public static class Result {
-		private final String finess;
-		private final String version;
-		private final Long endPmsiPosition;
-		private final Reader reader;
-		public Result(String finess, String version, Long endPmsiPosition,
-				Reader reader) {
-			this.finess = finess;
-			this.version = version;
-			this.endPmsiPosition = endPmsiPosition;
-			this.reader = reader;
-		}
-		public String getFiness() {
-			return finess;
-		}
-		public String getVersion() {
-			return version;
-		}
-		public Long getEndPmsiPosition() {
-			return endPmsiPosition;
-		}
-		public Reader getReader() {
-			return reader;
-		}
-	}
+	public String getFiness();
+
+	String getVersion();
+
+	Long getEndPmsiPosition();
+
+	Reader getReader();
 }
