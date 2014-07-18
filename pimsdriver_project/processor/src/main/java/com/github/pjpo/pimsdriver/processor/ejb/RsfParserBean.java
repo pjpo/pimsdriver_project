@@ -14,9 +14,10 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.ejb.AsyncResult;
-import javax.ejb.PostActivate;
-import javax.ejb.PrePassivate;
+import javax.ejb.Asynchronous;
 import javax.ejb.Stateful;
 
 import com.github.aiderpmsi.pims.parser.utils.PimsParserFromReader;
@@ -24,7 +25,7 @@ import com.github.aiderpmsi.pims.parser.utils.SimpleParser;
 import com.github.aiderpmsi.pims.parser.utils.SimpleParserFactory;
 import com.github.pjpo.pimsdriver.processor.RsfLineHandler;
 
-@Stateful(passivationCapable=true)
+@Stateful
 public class RsfParserBean implements RsfParser {
 
 	private final static Logger LOGGER = Logger
@@ -38,12 +39,8 @@ public class RsfParserBean implements RsfParser {
 	
 	private Long endPmsiPosition = null;
 	
-	public RsfParserBean() {
-		postActivate();
-	}
-	
-	@PostActivate
-	private void postActivate(){
+	@PostConstruct
+	private void postConstruct(){
 		try {
 			rsfResult = Files.createTempFile("", "");
 		} catch (Throwable e) {
@@ -52,6 +49,7 @@ public class RsfParserBean implements RsfParser {
 	}
 	
 	@Override
+	@Asynchronous
 	public Future<Collection<String>> processRsf(Reader reader) {
 		try (final Writer writer = Files.newBufferedWriter(rsfResult, Charset.forName("UTF-8"), StandardOpenOption.TRUNCATE_EXISTING)) {
 			final SimpleParserFactory spf = new SimpleParserFactory();
@@ -86,7 +84,7 @@ public class RsfParserBean implements RsfParser {
 		}
 	}
 	
-	@PrePassivate
+	@PreDestroy
 	private void prePassivate(){
 		try {
 			Files.delete(rsfResult);

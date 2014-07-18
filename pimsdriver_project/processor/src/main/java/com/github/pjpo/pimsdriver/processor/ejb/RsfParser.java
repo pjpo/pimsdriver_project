@@ -4,13 +4,11 @@ import java.io.Reader;
 import java.util.Collection;
 import java.util.concurrent.Future;
 
-import javax.ejb.Asynchronous;
 import javax.ejb.Local;
 
 @Local
 public interface RsfParser {
 	
-	@Asynchronous
 	public Future<Collection<String>> processRsf(Reader reader);
 
 	public Result getResult();
