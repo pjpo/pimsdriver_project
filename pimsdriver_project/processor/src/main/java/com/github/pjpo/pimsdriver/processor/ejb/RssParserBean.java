@@ -62,7 +62,7 @@ public class RssParserBean extends ParserBean implements RssParser {
 				// CREATES THE RSS GROUPER
 				final GroupHandler groupHandler = new GroupHandler(startPmsiPosition, groupsWriter);
 				// CREATES PARSER
-				final SimpleParser sp = spf.newParser("rsfheader", Arrays.asList(handler, groupHandler),
+				final SimpleParser sp = spf.newParser("rssheader", Arrays.asList(handler, groupHandler),
 						(msg, line) -> errors.add(msg + " at line " + line));
 				// PARSES
 				sp.parse(new PimsParserFromReader(reader));

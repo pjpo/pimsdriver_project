@@ -13,11 +13,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.ejb.AsyncResult;
-import javax.ejb.Stateful;
 
 import com.github.pjpo.pimsdriver.processor.ErrorCatcher.Executor;
 
-@Stateful
 public abstract class ParserBean implements Parser {
 
 	/** Default logger */
@@ -64,6 +62,8 @@ public abstract class ParserBean implements Parser {
 				final ParsingResult pr = parser.parse(errors);
 				if (pr == null)
 					throw new IOException("Error while parsing pmsi file");
+				// BE SURE TO CLEANUP WHOLE READER If AN ERROR HAPPENED
+				while (reader.skip(65536L) != 0) {}
 				// SETS THE RESULT OF PARSING
 				setResults(true, pr.finess, pr.version, pr.endPmsiPosition);
 				// RETURNS THE LIST OF ERRORS
