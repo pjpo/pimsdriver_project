@@ -1,9 +1,5 @@
 package com.github.aiderpmsi.pimsdriver.dto;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.Charset;
 import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,17 +8,10 @@ import java.util.Collection;
 
 import javax.servlet.ServletContext;
 
-import org.postgresql.copy.CopyManager;
 import org.postgresql.largeobject.LargeObjectManager;
 
-import com.github.aiderpmsi.pims.parser.utils.PimsParserFromReader;
-import com.github.aiderpmsi.pims.parser.utils.SimpleParser;
 import com.github.aiderpmsi.pims.parser.utils.SimpleParserFactory;
 import com.github.aiderpmsi.pims.parser.utils.Utils.LineHandler;
-import com.github.aiderpmsi.pimsdriver.db.actions.pmsiprocess.GroupHandler;
-import com.github.aiderpmsi.pimsdriver.db.actions.pmsiprocess.PmsiLineHandler;
-import com.github.aiderpmsi.pimsdriver.db.actions.pmsiprocess.SimpleErrorHandler;
-import com.github.aiderpmsi.pimsdriver.db.actions.pmsiprocess.SimpleErrorHandler.Error;
 import com.github.aiderpmsi.pimsdriver.dto.StatementProvider.Entry;
 import com.github.aiderpmsi.pimsdriver.dto.model.UploadedPmsi.Status;
 
@@ -159,28 +148,6 @@ public class ProcessorDTO extends AutoCloseableDto<ProcessorDTO.Query> {
 		
 		try {
 
-			// TRANSFORMS PMSI TO A READY TO IMPORT POSTGRESQL FILE
-			try (Reader dbFile = new InputStreamReader(lom.open(oid).getInputStream(), Charset.forName("UTF-8"))) {
-
-				// PARSE AND STORE PMSI
-				SimpleErrorHandler eh = new SimpleErrorHandler();
-				SimpleParser parser = pf.newParser(type, lhs, eh);
-				parser.parse(new PimsParserFromReader(dbFile));
-
-				// THROW ERROR IF AN ERROR HAPPENED
-				if (eh.getErrors().size() != 0) {
-					IOException e = null;
-					int i = 0;
-					for (Error ex : eh.getErrors()) {
-						if (i++ == 0)
-							e = new IOException(ex.msg + " at line " + ex.line);
-						else
-							e.addSuppressed(new IOException(ex.msg + " at line " + ex.line));
-					}
-					throw e;
-				}
-				
-			}
 		
 			// BULK IMPORT TO PGSQL
 			String pmsiQuery = "COPY pmel_temp (pmel_root, pmel_position, pmel_parent, pmel_type, pmel_line, pmel_content) "
@@ -188,19 +155,8 @@ public class ProcessorDTO extends AutoCloseableDto<ProcessorDTO.Query> {
 			String groupQuery = "COPY pmgr_temp (pmel_position, pmgr_racine, pmgr_modalite, pmgr_gravite, pmgr_erreur) "
 					+ "FROM STDIN WITH DELIMITER '|'";
 
-			final CopyManager cm = new CopyManager((org.postgresql.core.BaseConnection)getConnection());
-			
-			for (final LineHandler lineHandler : lhs) {
-				if (lineHandler instanceof PmsiLineHandler) {
-					((PmsiLineHandler) lineHandler).applyOnFile(
-							(reader) -> cm.copyIn(pmsiQuery, reader));
-				} else if (lineHandler instanceof GroupHandler) {
-					((GroupHandler) lineHandler).applyOnFile(
-							(reader) -> cm.copyIn(groupQuery, reader));
-				}
-			}
 
-		} catch (IOException e) {
+		} catch (Throwable e) {
 			throw new SQLException(e);
 		}
 

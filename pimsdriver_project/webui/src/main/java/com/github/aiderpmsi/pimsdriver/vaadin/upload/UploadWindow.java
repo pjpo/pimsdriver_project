@@ -9,7 +9,6 @@ import javax.servlet.ServletContext;
 import com.github.aiderpmsi.pimsdriver.vaadin.utils.aop.ActionEncloser;
 import com.github.pjpo.pimsdriver.processor.ejb.RsfParser;
 import com.github.pjpo.pimsdriver.processor.ejb.RssParser;
-import com.vaadin.data.util.ObjectProperty;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Notification;
@@ -56,7 +55,7 @@ public class UploadWindow extends Window {
 	private final TextField finessFeedBack;
 	
 	/** Finess Property */
-	private final ObjectProperty<String> finess = new ObjectProperty<String>(null);
+	private String finess = null;
 	
 	/** Button layout */
 	private final CssLayout buttonLayout = new CssLayout();
@@ -159,7 +158,7 @@ public class UploadWindow extends Window {
     		receiverProgressBar.setValue(0F);
     	} else {
     		// 4 - VERIFY THAT FINESSES MATCHES
-    		if (finess.getValue() != null && !finess.getValue().equals(receiver.getFiness())) {
+    		if (finess != null && !finess.equals(receiver.getFiness())) {
         		// REINIT DOWNLOAD
     			remove(receiver, receiverProgressBar);
     			Notification.show("Finess RSF et RSS ne correspondent pas", Notification.Type.WARNING_MESSAGE);
@@ -177,7 +176,10 @@ public class UploadWindow extends Window {
     		if (fu.getFiness() != null)
     			newFiness = fu.getFiness();
     	}
-    	finess.setValue(newFiness);
+    	if (finess != newFiness) {
+    		finess = newFiness;
+    		finessFeedBack.setValue(finess == null ? "" : finess);
+    	}
     }
     
     private void remove(final FileUploader<?> receiver, final ProgressBar progressBar) {

@@ -30,6 +30,5 @@ public class ProcessListener implements ContainerLifecycleListener {
 	@Override
 	public void onShutdown(Container container) {
 		// STOPS EACH PROCESS FOR EACH DATASOURCE
-		DataSourceSingleton.clean();
 	}
 }
