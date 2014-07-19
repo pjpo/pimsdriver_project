@@ -64,4 +64,8 @@ public abstract class FileUploader<T extends Parser> implements Receiver {
 	public void close() {
 		parser.remove();
 	}
+
+	public void clean() {
+		parser.clean();
+	}
 }

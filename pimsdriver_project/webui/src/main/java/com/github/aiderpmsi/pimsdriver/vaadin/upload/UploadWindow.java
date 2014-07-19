@@ -34,6 +34,9 @@ public class UploadWindow extends Window {
 	/** Rsf Progress Bar */
 	private final ProgressBar rsfProgressBar;
 	
+	/** Rsf Delete Button */
+	private final Button rsfDeleteButton;
+	
 	/** Rss Layout */
 	private final CssLayout rssLayout = new CssLayout();
 	
@@ -43,6 +46,9 @@ public class UploadWindow extends Window {
 	/** Rss Progress Bar */
 	private final ProgressBar rssProgressBar;
 
+	/** Rss Delete Button */
+	private final Button rssDeleteButton;
+
 	/** Finess layout */
 	private final CssLayout finessLayout = new CssLayout();
 
@@ -50,7 +56,7 @@ public class UploadWindow extends Window {
 	private final TextField finessFeedBack;
 	
 	/** Finess Property */
-	private final ObjectProperty<String> finess = new ObjectProperty<String>("");
+	private final ObjectProperty<String> finess = new ObjectProperty<String>(null);
 	
 	/** Button layout */
 	private final CssLayout buttonLayout = new CssLayout();
@@ -84,6 +90,11 @@ public class UploadWindow extends Window {
         rsfFilePicker.addProgressListener(
         		(readBytes, contentLength) -> rsfProgressBar.setValue((float)readBytes / (float)contentLength));
         rsfLayout.addComponent(rsfProgressBar);
+        
+        // ADD RSF DELETE BUTTON
+        rsfDeleteButton = new Button();
+        rsfDeleteButton.addClickListener((click) -> remove((FileUploader<?>) rsfFilePicker.getReceiver(), rsfProgressBar));
+        rsfLayout.addComponent(rsfDeleteButton);
         layout.addComponent(rsfLayout);
         
         // ADD RSS FILE PICKER
@@ -92,11 +103,16 @@ public class UploadWindow extends Window {
         rssFilePicker.setButtonCaption("Téléverser");
         rssLayout.addComponent(rssFilePicker);
         
-        // ADD RSF PROGRESS BAR
+        // ADD RSS PROGRESS BAR
         rssProgressBar = new ProgressBar();
         rssFilePicker.addProgressListener(
         		(readBytes, contentLength) -> rssProgressBar.setValue((float)readBytes / (float)contentLength));
         rssLayout.addComponent(rssProgressBar);
+
+        // ADD RSS DELETE BUTTON
+        rssDeleteButton = new Button();
+        rssDeleteButton.addClickListener((click) -> remove((FileUploader<?>) rssFilePicker.getReceiver(), rssProgressBar));
+        rsfLayout.addComponent(rssDeleteButton);
         layout.addComponent(rssLayout);
         
         // ADD FINESS FEEDBACK TEXTFIELD
@@ -114,21 +130,26 @@ public class UploadWindow extends Window {
         
         // UPLOAD FINISHED
         rsfFilePicker.addFinishedListener(
-        		(event) -> pmsiUploaded((FileUploader<?>) rsfFilePicker.getReceiver(), (FileUploader<?>) rssFilePicker.getReceiver(), rsfProgressBar));
+        		(event) -> pmsiUploaded((FileUploader<?>) rsfFilePicker.getReceiver(), rsfProgressBar));
         rssFilePicker.addFinishedListener(
-        		(event) -> pmsiUploaded((FileUploader<?>) rssFilePicker.getReceiver(), (FileUploader<?>) rsfFilePicker.getReceiver(), rssProgressBar));
+        		(event) -> pmsiUploaded((FileUploader<?>) rssFilePicker.getReceiver(), rssProgressBar));
         
         // CLOSE WINDOW EVENT
         addCloseListener((event) -> closeWindow());
 	}
 
-    private void closeWindow() {
+	private void closeWindow() {
     	((FileUploader<?>) rsfFilePicker.getReceiver()).close();        	
     	((FileUploader<?>) rssFilePicker.getReceiver()).close();
     }
     
-    /** Called when an rsf has just been uploaded */
-    private void pmsiUploaded(final FileUploader<?> receiver, final FileUploader<?> reference, final ProgressBar receiverProgressBar) {
+    /**
+     * Called when an rsf has just been uploaded
+     * @param receiver
+     * @param reference
+     * @param receiverProgressBar
+     */
+    private void pmsiUploaded(final FileUploader<?> receiver, final ProgressBar receiverProgressBar) {
     	// 2 -WAIT UPLOAD FINISH
     	final Collection<String> errors = receiver.getErrors();
 		// 3 -VERIFY THAT THE UPLOAD SUCCEDED
@@ -136,19 +157,34 @@ public class UploadWindow extends Window {
     		Notification.show("Mauvais fichier PMSI", Notification.Type.WARNING_MESSAGE);
     		// REINIT UPLOAD BAR
     		receiverProgressBar.setValue(0F);
-    		// IF OTHER FINESS IS NULL, REINIT FINESS
-    		if (reference.getFiness() == null) finess.setValue("");
     	} else {
     		// 4 - VERIFY THAT FINESSES MATCHES
-    		final String referenceFiness = reference.getFiness(); 
-    		if (referenceFiness != null && !referenceFiness.equals(receiver.getFiness())) {
+    		if (finess.getValue() != null && !finess.getValue().equals(receiver.getFiness())) {
+        		// REINIT DOWNLOAD
+    			remove(receiver, receiverProgressBar);
     			Notification.show("Finess RSF et RSS ne correspondent pas", Notification.Type.WARNING_MESSAGE);
-    		} else if (referenceFiness == null) {
-    			finess.setValue(receiver.getFiness());
     		}
     	}
+		// UPDATES FINESS
+		updateFiness();
     }
     
+    private void updateFiness() {
+    	final FileUploader<?> fileUploaders[] = new FileUploader<?>[]
+    			{(FileUploader<?>) rsfFilePicker.getReceiver(), (FileUploader<?>) rssFilePicker.getReceiver()};
+    	String newFiness = null;
+    	for (FileUploader<?> fu : fileUploaders) {
+    		if (fu.getFiness() != null)
+    			newFiness = fu.getFiness();
+    	}
+    	finess.setValue(newFiness);
+    }
+    
+    private void remove(final FileUploader<?> receiver, final ProgressBar progressBar) {
+    	((FileUploader<?>) rsfFilePicker.getReceiver()).clean();
+    	progressBar.setValue(0F);
+	}
+
     private void upload() {
     	// TODO : DATABASE ACTION
     }
