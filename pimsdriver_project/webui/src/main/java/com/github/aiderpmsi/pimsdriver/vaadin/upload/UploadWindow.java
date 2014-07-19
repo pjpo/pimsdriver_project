@@ -56,7 +56,7 @@ public class UploadWindow extends Window {
         setContent(layout);
         
         // ADD RSF FILE PICKER
-        rsfFilePicker = new Upload("RSF : ", new FileUploader("rsf", this));
+        rsfFilePicker = new Upload("RSF : ", new RsfFileUploader("rsf", this));
         rsfFilePicker.setImmediate(true);
         rsfFilePicker.setButtonCaption("Téléverser");
         rsfLayout.addComponent(rsfFilePicker);
@@ -69,7 +69,7 @@ public class UploadWindow extends Window {
         layout.addComponent(rsfLayout);
         
         // ADD RSS FILE PICKER
-        rssFilePicker = new Upload("RSF", new FileUploader("rsf", this));
+        rssFilePicker = new Upload("RSS", new RssFileUploader("rss", this));
         rssFilePicker.setImmediate(true);
         rssFilePicker.setButtonCaption("Téléverser");
         rssLayout.addComponent(rssFilePicker);
@@ -92,8 +92,8 @@ public class UploadWindow extends Window {
 	}
 
     private void closeWindow() {
-    	((FileUploader) rsfFilePicker.getReceiver()).close();        	
-    	((FileUploader) rssFilePicker.getReceiver()).close();
+    	((FileUploader<?>) rsfFilePicker.getReceiver()).close();        	
+    	((FileUploader<?>) rssFilePicker.getReceiver()).close();
     }
     
     private void upload() {
