@@ -83,8 +83,6 @@ public class UploadWindow extends Window {
         rsfProgressBar = new ProgressBar();
         rsfFilePicker.addProgressListener(
         		(readBytes, contentLength) -> rsfProgressBar.setValue((float)readBytes / (float)contentLength));
-        rsfFilePicker.addFinishedListener(
-        		(event) -> pmsiUploaded((FileUploader<?>) rsfFilePicker.getReceiver(), (FileUploader<?>) rssFilePicker.getReceiver()));
         rsfLayout.addComponent(rsfProgressBar);
         layout.addComponent(rsfLayout);
         
@@ -98,8 +96,6 @@ public class UploadWindow extends Window {
         rssProgressBar = new ProgressBar();
         rssFilePicker.addProgressListener(
         		(readBytes, contentLength) -> rssProgressBar.setValue((float)readBytes / (float)contentLength));
-        rssFilePicker.addFinishedListener(
-        		(event) -> pmsiUploaded((FileUploader<?>) rssFilePicker.getReceiver(), (FileUploader<?>) rsfFilePicker.getReceiver()));
         rssLayout.addComponent(rssProgressBar);
         layout.addComponent(rssLayout);
         
@@ -116,6 +112,13 @@ public class UploadWindow extends Window {
         buttonLayout.addComponent(okButton);
         layout.addComponent(buttonLayout);
         
+        // UPLOAD FINISHED
+        rsfFilePicker.addFinishedListener(
+        		(event) -> pmsiUploaded((FileUploader<?>) rsfFilePicker.getReceiver(), (FileUploader<?>) rssFilePicker.getReceiver(), rsfProgressBar));
+        rssFilePicker.addFinishedListener(
+        		(event) -> pmsiUploaded((FileUploader<?>) rssFilePicker.getReceiver(), (FileUploader<?>) rsfFilePicker.getReceiver(), rssProgressBar));
+        
+        // CLOSE WINDOW EVENT
         addCloseListener((event) -> closeWindow());
 	}
 
@@ -125,14 +128,14 @@ public class UploadWindow extends Window {
     }
     
     /** Called when an rsf has just been uploaded */
-    private void pmsiUploaded(final FileUploader<?> receiver, final FileUploader<?> reference) {
+    private void pmsiUploaded(final FileUploader<?> receiver, final FileUploader<?> reference, final ProgressBar receiverProgressBar) {
     	// 2 -WAIT UPLOAD FINISH
     	final Collection<String> errors = receiver.getErrors();
 		// 3 -VERIFY THAT THE UPLOAD SUCCEDED
     	if (errors.size() > 0) {
     		Notification.show("Mauvais fichier PMSI", Notification.Type.WARNING_MESSAGE);
     		// REINIT UPLOAD BAR
-    		rsfProgressBar.setValue(0F);
+    		receiverProgressBar.setValue(0F);
     		// IF OTHER FINESS IS NULL, REINIT FINESS
     		if (reference.getFiness() == null) finess.setValue("");
     	} else {

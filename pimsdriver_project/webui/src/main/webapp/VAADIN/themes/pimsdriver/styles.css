@@ -74,22 +74,24 @@
 	width: 100%;
 }
 
-.pims-upload-vertical-layout.v-csslayout > * {
+.pims-upload-vertical-layout.v-csslayout > div {
 	display:table-row;
 }
 
-.pims-upload-vertical-layout.v-csslayout > * > * {
+.pims-upload-vertical-layout.v-csslayout > div > form,
+.pims-upload-vertical-layout.v-csslayout > div > div {
 	display:table-cell;
+	width: 100%;
 }
 
-.pims-upload-vertical-layout.v-csslayout > * > * :nth-child(1) {
+.pims-upload-vertical-layout.v-csslayout > div:nth-child(1) {
 	width: 15%;
 }
 
-.pims-upload-vertical-layout.v-csslayout > * > * :nth-child(2) {
+.pims-upload-vertical-layout.v-csslayout > div:nth-child(2) {
 	width: 15%;
 }
 
-.pims-upload-vertical-layout.v-csslayout > * > * :nth-child(3) {
+.pims-upload-vertical-layout.v-csslayout > div:nth-child(3) {
 	width: 70%;
 }
