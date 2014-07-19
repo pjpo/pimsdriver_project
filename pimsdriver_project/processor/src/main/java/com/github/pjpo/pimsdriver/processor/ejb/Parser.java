@@ -19,10 +19,12 @@ public interface Parser {
 	 */
 	public void remove();
 	
+	public void clean();
+	
 	public String getFiness();
 
-	String getVersion();
+	public String getVersion();
 
-	Long getEndPmsiPosition();
+	public Long getEndPmsiPosition();
 
 }

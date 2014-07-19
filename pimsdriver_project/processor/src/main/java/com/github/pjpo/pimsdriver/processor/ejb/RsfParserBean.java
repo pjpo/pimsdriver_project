@@ -76,5 +76,10 @@ public class RsfParserBean extends ParserBean implements RsfParser {
 	private void preDestroy(){
 		preDestroy(() -> Files.delete(rsfResult));
 	}
+
+	@Override
+	public void clean() {
+		clean(() -> Files.write(rsfResult, new byte[0]));
+	}
 	
 }

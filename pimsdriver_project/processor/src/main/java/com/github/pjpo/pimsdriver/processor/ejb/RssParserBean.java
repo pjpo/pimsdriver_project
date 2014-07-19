@@ -99,4 +99,13 @@ public class RssParserBean extends ParserBean implements RssParser {
 		});
 	}
 	
+	@Override
+	public void clean() {
+		clean(() -> {
+			Throwable e = ErrorCatcher.execute(() -> Files.write(rssResult, new byte[0]), null);
+			e = ErrorCatcher.execute(() -> Files.write(rssGroups, new byte[0]), e);
+			if (e != null) throw e;
+		});
+	}
+
 }

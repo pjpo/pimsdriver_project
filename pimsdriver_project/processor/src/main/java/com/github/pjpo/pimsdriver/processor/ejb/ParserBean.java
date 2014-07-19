@@ -120,6 +120,18 @@ public abstract class ParserBean implements Parser {
 		}
 	}
 	
+	protected void clean(Executor executor) {
+		synchronized (writeLock) {
+			try {
+				executor.execute();
+				setResults(false, null, null, null);
+			} catch (Throwable e) {
+				LOGGER.log(Level.SEVERE, "Unable to clean bean", e);
+			}
+			
+		}
+	}
+	
 	protected void preDestroy(Executor executor){
 		try {
 			// CLOSES ALL OPENED READER
