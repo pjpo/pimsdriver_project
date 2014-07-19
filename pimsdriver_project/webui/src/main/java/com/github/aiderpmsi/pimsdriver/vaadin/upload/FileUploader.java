@@ -1,4 +1,4 @@
-package com.github.aiderpmsi.pimsdriver.vaadin.utils;
+package com.github.aiderpmsi.pimsdriver.vaadin.upload;
 
 import java.io.OutputStream;
 import java.nio.charset.Charset;
@@ -49,15 +49,15 @@ public abstract class FileUploader<T extends Parser> implements Receiver {
 				(throwable) -> "Uploading error", () -> futureErrorsUpload.get());
 	}
 
-	public String getRsfFiness() {
+	public String getFiness() {
 		return parser.getFiness();
 	}
 	
-	public String getRsfVersion() {
+	public String getVersion() {
 		return parser.getVersion();
 	}
 	
-	public Long getRsfEndPmsiPosition() {
+	public Long getEndPmsiPosition() {
 		return parser.getEndPmsiPosition();
 	}
 	
