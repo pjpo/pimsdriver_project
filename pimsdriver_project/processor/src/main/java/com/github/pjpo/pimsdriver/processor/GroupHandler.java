@@ -180,9 +180,19 @@ public class GroupHandler implements LineHandler {
 			throw new IOException("Groupage result is null, implementation error");
 		}
 		
-		
 		StringBuilder lineBuilder = new StringBuilder();
-		escapeAndWrite((String) group.get("racine"), lineBuilder);
+
+		final Object racine = group.get("racine");
+		if (racine == null) {
+			lineBuilder.append("N");
+		} else {
+			lineBuilder.append(":");
+			lineBuilder.append((String) racine);
+		}
+		
+		if (group.get)
+		lineBuilder.append( == null ? "N" : ":" + (String) group.get("racine"));
+		escapeAndWrite(, lineBuilder);
 		lineBuilder.append('|');
 		escapeAndWrite((String) group.get("modalite"), lineBuilder);
 		lineBuilder.append('|');

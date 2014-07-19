@@ -9,8 +9,10 @@ import javax.servlet.ServletContext;
 import com.github.aiderpmsi.pimsdriver.vaadin.utils.aop.ActionEncloser;
 import com.github.pjpo.pimsdriver.processor.ejb.RsfParser;
 import com.github.pjpo.pimsdriver.processor.ejb.RssParser;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.Image;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.TextField;
@@ -33,8 +35,8 @@ public class UploadWindow extends Window {
 	/** Rsf Progress Bar */
 	private final ProgressBar rsfProgressBar;
 	
-	/** Rsf Delete Button */
-	private final Button rsfDeleteButton;
+	/** Rsf Delete Image */
+	private final Image rsfDeleteImage;
 	
 	/** Rss Layout */
 	private final CssLayout rssLayout = new CssLayout();
@@ -45,8 +47,8 @@ public class UploadWindow extends Window {
 	/** Rss Progress Bar */
 	private final ProgressBar rssProgressBar;
 
-	/** Rss Delete Button */
-	private final Button rssDeleteButton;
+	/** Rss Delete Image */
+	private final Image rssDeleteImage;
 
 	/** Finess layout */
 	private final CssLayout finessLayout = new CssLayout();
@@ -90,10 +92,11 @@ public class UploadWindow extends Window {
         		(readBytes, contentLength) -> rsfProgressBar.setValue((float)readBytes / (float)contentLength));
         rsfLayout.addComponent(rsfProgressBar);
         
-        // ADD RSF DELETE BUTTON
-        rsfDeleteButton = new Button();
-        rsfDeleteButton.addClickListener((click) -> remove((FileUploader<?>) rsfFilePicker.getReceiver(), rsfProgressBar));
-        rsfLayout.addComponent(rsfDeleteButton);
+        // ADD RSF DELETE ICON
+        rsfDeleteImage = new Image(null, new ThemeResource("img/delete-button.png"));
+        rsfDeleteImage.addStyleName("pims-upload-delete-image");
+        rsfDeleteImage.addClickListener((click) -> remove((FileUploader<?>) rsfFilePicker.getReceiver(), rsfProgressBar));
+        rsfLayout.addComponent(rsfDeleteImage);
         layout.addComponent(rsfLayout);
         
         // ADD RSS FILE PICKER
@@ -108,22 +111,22 @@ public class UploadWindow extends Window {
         		(readBytes, contentLength) -> rssProgressBar.setValue((float)readBytes / (float)contentLength));
         rssLayout.addComponent(rssProgressBar);
 
-        // ADD RSS DELETE BUTTON
-        rssDeleteButton = new Button();
-        rssDeleteButton.addClickListener((click) -> remove((FileUploader<?>) rssFilePicker.getReceiver(), rssProgressBar));
-        rsfLayout.addComponent(rssDeleteButton);
+        // ADD RSS DELETE ICON
+        rssDeleteImage = new Image(null, new ThemeResource("img/delete-button.png"));
+        rssDeleteImage.addStyleName("pims-upload-delete-image");
+        rssDeleteImage.addClickListener((click) -> remove((FileUploader<?>) rssFilePicker.getReceiver(), rssProgressBar));
+        rssLayout.addComponent(rssDeleteImage);
         layout.addComponent(rssLayout);
         
         // ADD FINESS FEEDBACK TEXTFIELD
-        finessFeedBack = new TextField("Finess :", finess);
+        finessFeedBack = new TextField("Finess :", "");
         finessFeedBack.setEnabled(false);
         finessLayout.addComponent(finessFeedBack);
         layout.addComponent(finessLayout);
         
         // ADD OK BUTTON
         okButton = new Button("Valider");
-        okButton.addClickListener(
-        		(clickEvent) -> upload());
+        okButton.addClickListener((clickEvent) -> upload());
         buttonLayout.addComponent(okButton);
         layout.addComponent(buttonLayout);
         

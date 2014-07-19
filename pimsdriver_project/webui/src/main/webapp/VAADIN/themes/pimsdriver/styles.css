@@ -81,19 +81,28 @@
 .pims-upload-vertical-layout.v-csslayout > div > form,
 .pims-upload-vertical-layout.v-csslayout > div > div {
 	display:table-cell;
+	vertical-align: middle;
 }
 
-.pims-upload-vertical-layout.v-csslayout > div > form:nth-child(1),
 .pims-upload-vertical-layout.v-csslayout > div > div:nth-child(1) {
 	width: 15%;
 }
 
-.pims-upload-vertical-layout.v-csslayout > div > form:nth-child(2),
-.pims-upload-vertical-layout.v-csslayout > div > div:nth-child(2) {
+.pims-upload-vertical-layout.v-csslayout > div > form:nth-child(2) {
 	width: 15%;
 }
 
-.pims-upload-vertical-layout.v-csslayout > div > form:nth-child(3),
 .pims-upload-vertical-layout.v-csslayout > div > div:nth-child(3) {
-	width: 70%;
+	width: 60%;
+}
+
+.pims-upload-vertical-layout.v-csslayout > div > img:nth-child(4) {
+	width: 10%;
+	width: 1.5em;
+}
+
+/* Disable input.gwt-FileUpload because it doesn't like the css placement in vaadin */
+
+.pims-upload-vertical-layout.v-csslayout input.gwt-FileUpload {
+	display: none;
 }
