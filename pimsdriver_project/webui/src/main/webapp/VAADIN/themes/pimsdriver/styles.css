@@ -86,19 +86,23 @@
 
 .pims-upload-vertical-layout.v-csslayout > div > div:nth-child(1) {
 	width: 15%;
+	padding: .3em;
 }
 
 .pims-upload-vertical-layout.v-csslayout > div > form:nth-child(2) {
 	width: 15%;
+	padding: .3em;
 }
 
 .pims-upload-vertical-layout.v-csslayout > div > div:nth-child(3) {
 	width: 60%;
+	padding: 1em;
 }
 
 .pims-upload-vertical-layout.v-csslayout > div > img:nth-child(4) {
 	width: 10%;
 	width: 1.5em;
+	padding: .3em;
 }
 
 /* Disable input.gwt-FileUpload because it doesn't like the css placement in vaadin */

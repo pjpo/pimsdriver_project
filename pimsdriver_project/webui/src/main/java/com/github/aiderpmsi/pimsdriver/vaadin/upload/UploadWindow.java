@@ -188,6 +188,7 @@ public class UploadWindow extends Window {
     private void remove(final FileUploader<?> receiver, final ProgressBar progressBar) {
     	((FileUploader<?>) rsfFilePicker.getReceiver()).clean();
     	progressBar.setValue(0F);
+    	updateFiness();
 	}
 
     private void upload() {
