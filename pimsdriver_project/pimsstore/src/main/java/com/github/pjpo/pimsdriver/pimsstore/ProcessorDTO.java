@@ -1,9 +1,13 @@
 package com.github.pjpo.pimsdriver.pimsstore;
 
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 
@@ -14,7 +18,6 @@ public class ProcessorDTO {
 	public static void createTempTables (final Connection con) throws SQLException {
 		try (final PreparedStatement ps = con.prepareStatement("CREATE TEMPORARY TABLE pmel_temp ( \n"
 				+ " pmel_root bigint NOT NULL, \n"
-				+ " temp_numrss character varying, \n"
 				+ " pmel_position bigint NOT NULL, \n"
 				+ " pmel_parent bigint, \n"
 				+ " pmel_type character varying NOT NULL, \n"
@@ -42,6 +45,99 @@ public class ProcessorDTO {
 		}
 	}
 	
+	public static void storeRsfInTemp(final Connection con, final Reader rsfReader) throws IOException, SQLException {
+		// CHECK PMSI OFFSET
+		final long pmsiOffset = getMaxPmsi(con);
+		
+		// STORES RSF
+		storePmsiInTemp(con, rsfReader, pmsiOffset);
+	}
+	
+	public static void storeRssInTemp(final Connection con, final Reader rsfReader, final Reader groupsReader) throws IOException, SQLException {
+		// CHECK PMSI OFFSET
+		final long pmsiOffset = getMaxPmsi(con);
+		
+		// STORES RSS
+		storePmsiInTemp(con, rsfReader, pmsiOffset);
+		
+		// STORES GROUPS
+		storeGroupsInTemp(con, groupsReader, pmsiOffset);
+	}
+
+	private static void storePmsiInTemp(final Connection con, final Reader reader, final Long pmsiOffset) throws SQLException, NumberFormatException, IOException {
+		// STORES THE ELEMENTS
+		try (final BufferedReader br = new BufferedReader(reader);
+				final PreparedStatement ps = con.prepareStatement(
+				"INSERT INTO pmel_temp(pmel_root, pmel_position, pmel_parent, pmel_line, pmel_content) VALUES (?, ?, ?, ?, ?);")) {
+			String line;
+			for (Long lineNb = 0L ; (line = br.readLine()) != null ; lineNb = Long.sum(lineNb, 1L)) {
+				// FILLS STATEMENTS
+				int posInLine = (int) (lineNb % 5);
+				if (posInLine == 0L && lineNb != 0L) {
+					ps.addBatch();
+				}
+				if (posInLine == 0 || posInLine == 3) {
+					ps.setLong(posInLine + 1, line.startsWith(":") ? Long.parseLong(line.substring(1)) : null);
+				} else if (posInLine == 1 || posInLine == 2) {
+					ps.setLong(posInLine + 1, line.startsWith(":") ? Long.parseLong(line.substring(1)) + pmsiOffset: null);
+				} else if (posInLine == 4) {
+					ps.setString(posInLine + 1, line.startsWith(":") ? line.substring(1) : null);
+				}
+				
+				// SENDS THE BATCH EACH 1000 ROWS
+				if (lineNb % 1000 == 0) {
+					ps.executeBatch();
+				}
+			}
+			// SENDS REMAINING BATCH
+			ps.executeBatch();
+			
+		}
+	}
+	
+	private static long getMaxPmsi(final Connection con) throws SQLException {
+		try (final PreparedStatement checkPs = con.prepareStatement("SELECT MAX(pmel_position) FROM pmel_temp;")) {
+			
+			// FIRST CHECK THE MAX PMEL_POSITION AS AN OFFSET
+			if (checkPs.execute()) {
+				final ResultSet rs = checkPs.getResultSet();
+				if (rs.next()) {
+					final long result = rs.getLong(1);
+					return rs.wasNull() ? 0L : result;
+				}
+			}
+			return 0L;
+			
+		}
+	}
+
+	public static void storeGroupsInTemp(final Connection con, final Reader reader, final long pmsiOffset) throws SQLException, NumberFormatException, IOException {
+		try (final BufferedReader br = new BufferedReader(reader);
+				final PreparedStatement ps = con.prepareStatement(
+				"INSERT INTO pmgr_temp(pmel_position, pmgr_racine, pmgr_modalite, pmgr_gravite, pmgr_erreur) VALUES (?, ?, ?, ?, ?);")) {
+			String line;
+			for (Long lineNb = 0L ; (line = br.readLine()) != null ; lineNb = Long.sum(lineNb, 1L)) {
+				// FILLS STATEMENTS
+				int posInLine = (int) (lineNb % 5);
+				if (posInLine == 0L && lineNb != 0L) {
+					ps.addBatch();
+				}
+				if (posInLine == 0) {
+					ps.setLong(posInLine + 1, line.startsWith(":") ? Long.parseLong(line.substring(1)) + pmsiOffset : null);
+				} else if (posInLine < 4) {
+					ps.setString(posInLine + 1, line.startsWith(":") ? line.substring(1) : null);
+				}
+				
+				// SENDS THE BATCH EACH 1000 ROWS
+				if (lineNb % 1000 == 0) {
+					ps.executeBatch();
+				}
+			}
+			// SENDS REMAINING BATCH
+			ps.executeBatch();
+			
+		}
+	}
 	
 	public enum Query implements StatementProvider {
 		CREATE_TEMP_TABLES,
@@ -129,23 +225,6 @@ public class ProcessorDTO {
 		
 	}
 	
-	public ProcessorDTO(final Connection con, final ServletContext context) {
-		super(con, ProcessorDTO.Query.class, context);
-	}
-
-	public void createTempTables() throws SQLException {
-		PreparedStatement ps = getPs(Query.CREATE_TEMP_TABLES);
-		ps.execute();
-	}
-	
-	public void createDefinitiveTables(Long id) throws SQLException {
-		Entry<Long> idEntry = new Entry<>();
-		idEntry.object = id;
-		idEntry.clazz = Long.class;
-		
-		PreparedStatement ps = getPs(Query.CREATE_DEFINITIVE_TABLES, idEntry);
-		ps.execute();
-	}
 	
 	public void copyTempTables(Long id) throws SQLException {
 		Entry<Long> idEntry = new Entry<>();

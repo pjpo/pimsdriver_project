@@ -43,46 +43,32 @@ public abstract class PmsiLineHandler implements LineHandler {
 			
 			// WRITES THE CONTENT
 			// 1 - PMSI POSITION (UNIQUE IN EACH ROOT)
-			writer.append(Long.toString(pmsiPosition));
-			writer.append('|');
+			writer.write(Long.toString(pmsiPosition));
+			writer.write('\n');
 		
 			// 2 - PARENT (NULL FOR HEADER)
 			final Long pmel_parent = getParent();
-			writer.append(pmel_parent == null ? "\\N" : Long.toString(pmel_parent));
-			writer.append('|');
+			writer.append(pmel_parent == null ? "N" : ":" + Long.toString(pmel_parent));
+			writer.append('\n');
 		
 			// 3 - KIND OF CONTENT
-			escape(line.getName(), writer);
-			writer.append('|');
+			writer.write(line.getName());
+			writer.append('\n');
 
 			// 4 -WRITES LINE NUMBER
 			writer.append(lineNumber);
-			writer.append('|');
+			writer.append('\n');
 		
 			// 5 - WRITES LINE
-			escape(line.getMatchedLine(), writer);
+			writer.write(line.getMatchedLine().sequence, line.getMatchedLine().start, line.getMatchedLine().count);
 
 			// 6 - END LINE
-			writer.append("\r\n");
+			writer.append('\n');
 
 			pmsiPosition++;
 		} else if (line instanceof EndOfFilePmsiLine) {
 			// EOF, CLOSE WRITER
 			writer.close();
-		}
-	}
-	
-	private void escape(final CharSequence sgt, final Writer writer) throws IOException {		
-		for (int i = 0 ; i < sgt.length() ; i++) {
-			final char character = sgt.charAt(i); 
-			if (character == '\\')
-				for (final char escapeChar : escapeEscape)
-					writer.append(escapeChar);
-			else if (character == '|')
-				for (final char escapeChar : escapeDelim)
-					writer.append(escapeChar);
-			else
-				writer.append(character);
 		}
 	}
 	
@@ -101,9 +87,5 @@ public abstract class PmsiLineHandler implements LineHandler {
 	public abstract String getFiness();
 
 	public abstract String getVersion();
-	
-	private static final char[] escapeEscape = {'\\', '\\'};
-
-	private static final char[] escapeDelim = {'\\', '|'};
 
 }

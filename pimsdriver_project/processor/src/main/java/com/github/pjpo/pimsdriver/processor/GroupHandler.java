@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.github.aiderpmsi.pims.grouper.model.RssActe;
 import com.github.aiderpmsi.pims.grouper.model.RssContent;
@@ -154,19 +155,6 @@ public class GroupHandler implements LineHandler {
 		}
 	}
 
-	private void escapeAndWrite(final CharSequence sgt, final StringBuilder lineBuilder) throws IOException {
-		int size = sgt.length();
-		for (int i = 0 ; i < size ; i++) {
-			char character = sgt.charAt(i); 
-			if (character == '\\')
-				lineBuilder.append(escapeEscape);
-			else if (character == '|')
-				lineBuilder.append(escapeDelim);
-			else
-				lineBuilder.append(character);
-		}
-	}
-		
 	private void groupAndStore() throws IOException {
 		HashMap<?, ?> group;
 		try {
@@ -180,38 +168,33 @@ public class GroupHandler implements LineHandler {
 			throw new IOException("Groupage result is null, implementation error");
 		}
 		
-		StringBuilder lineBuilder = new StringBuilder();
+		final StringBuilder lineBuilder = new StringBuilder();
 
-		final Object racine = group.get("racine");
-		if (racine == null) {
-			lineBuilder.append("N");
-		} else {
-			lineBuilder.append(":");
-			lineBuilder.append((String) racine);
+		final Object[] elements = {
+				group.get("racine"), group.get("modalite"), group.get("gravite"), group.get("erreur")};
+
+		Consumer<Object> consumer = (element) -> {
+			if (element == null) {
+				lineBuilder.append("N\n");
+			} else {
+				lineBuilder.append(":");
+				lineBuilder.append(element.toString());
+				lineBuilder.append("\n");
+			}
+		};
+
+		for (Object element : elements) {
+			consumer.accept(element);
 		}
 		
-		if (group.get)
-		lineBuilder.append( == null ? "N" : ":" + (String) group.get("racine"));
-		escapeAndWrite(, lineBuilder);
-		lineBuilder.append('|');
-		escapeAndWrite((String) group.get("modalite"), lineBuilder);
-		lineBuilder.append('|');
-		escapeAndWrite((String) group.get("gravite"), lineBuilder);
-		lineBuilder.append('|');
-		escapeAndWrite((String) group.get("erreur"), lineBuilder);
-		lineBuilder.append('\n');
-		String line = lineBuilder.toString();
-
+		final String line = lineBuilder.toString();  
+		
 		// WRITES THE ELEMENT
 		for (Long pmsiPosition : pmsiPositions) {
 			writer.write(Long.toString(pmsiPosition));
-			writer.write('|');
+			writer.write('\n');
 			writer.write(line);
 		}
 	}
-
-	private static final char[] escapeEscape = {'\\', '\\'};
-
-	private static final char[] escapeDelim = {'\\', '|'};
 
 }
