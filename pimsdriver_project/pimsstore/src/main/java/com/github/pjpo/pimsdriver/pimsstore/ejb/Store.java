@@ -8,8 +8,13 @@ import javax.ejb.Local;
 public interface Store {
 
 	public Boolean storePmsiFiles(
-			Reader rsfResultsReader,
-			Reader rssResultsReader,
-			Reader rssGroupsReader);
+			ReaderSupplier rsfResultsReader,
+			ReaderSupplier rssResultsReader,
+			ReaderSupplier rssGroupsReader);
+	
+	@FunctionalInterface
+	public interface ReaderSupplier {
+		public Reader supply() throws Throwable;
+	}
 	
 }

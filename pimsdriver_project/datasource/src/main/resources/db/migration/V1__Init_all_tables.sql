@@ -1,9 +1,6 @@
 CREATE SCHEMA pmel;
 CREATE SCHEMA pmgr;
 
-/* Create Types */
-CREATE TYPE public.plud_status AS ENUM ('pending', 'successed', 'failed');
-
 /* Create functions */
 CREATE FUNCTION public.cast_to_int(text, integer) RETURNS INTEGER AS
 $$
@@ -35,7 +32,6 @@ language plpgsql immutable;
 
 CREATE TABLE public.plud_pmsiupload (
   plud_id bigserial NOT NULL,
-  plud_processed plud_status NOT NULL,
   plud_finess character varying NOT NULL,
   plud_year integer NOT NULL,
   plud_month smallint NOT NULL,

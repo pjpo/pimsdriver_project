@@ -9,8 +9,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Logger;
 
 public class StoreDTO {
+
+	@SuppressWarnings("unused")
+	private static final Logger LOGGER = Logger.getLogger(StoreDTO.class.toString());
 
 	public static void createTempTables (final Connection con) throws SQLException {
 		try (final PreparedStatement ps = con.prepareStatement("CREATE TEMPORARY TABLE pmel_temp ( \n"
@@ -100,12 +104,12 @@ public class StoreDTO {
 		storePmsiInTemp(con, rsfReader, pmsiOffset);
 	}
 	
-	public static void storeRssInTemp(final Connection con, final Reader rsfReader, final Reader groupsReader) throws IOException, SQLException {
+	public static void storeRssInTemp(final Connection con, final Reader rssReader, final Reader groupsReader) throws IOException, SQLException {
 		// CHECK PMSI OFFSET
 		final long pmsiOffset = getMaxPmsi(con);
 		
 		// STORES RSS
-		storePmsiInTemp(con, rsfReader, pmsiOffset);
+		storePmsiInTemp(con, rssReader, pmsiOffset);
 		
 		// STORES GROUPS
 		storeGroupsInTemp(con, groupsReader, pmsiOffset);
@@ -178,7 +182,7 @@ public class StoreDTO {
 		}
 	}
 
-	public static void storeGroupsInTemp(final Connection con, final Reader reader, final long pmsiOffset) throws SQLException, NumberFormatException, IOException {
+	private static void storeGroupsInTemp(final Connection con, final Reader reader, final long pmsiOffset) throws SQLException, NumberFormatException, IOException {
 		try (final BufferedReader br = new BufferedReader(reader);
 				final PreparedStatement ps = con.prepareStatement(
 				"INSERT INTO pmgr_temp(pmel_position, pmgr_racine, pmgr_modalite, pmgr_gravite, pmgr_erreur) VALUES (?, ?, ?, ?, ?);")) {
@@ -204,6 +208,33 @@ public class StoreDTO {
 			ps.executeBatch();
 			
 		}
+	}
+	
+	public static void execute(final Connection con, final Executor executor) throws Throwable {
+		while (true) {
+			try {
+				executor.execute();
+				con.commit();
+			} catch (final Throwable e) {
+				if (e instanceof SQLException && ((SQLException)e).getSQLState().equals("40001")) {
+					// WAS SERIALIZATION EXCEPTION, RETRY AND COMMIT
+				} else {
+					// WAS ERROR, ROLLBACK AND RETURN FALSE
+					try {
+						con.rollback();
+					} catch (final SQLException e1) {
+						e1.addSuppressed(e);
+						throw e1;
+					}
+					throw e;
+				}
+			}
+		}
+	}
+
+	@FunctionalInterface
+	public interface Executor {
+		public void execute() throws Throwable;
 	}
 	
 }
