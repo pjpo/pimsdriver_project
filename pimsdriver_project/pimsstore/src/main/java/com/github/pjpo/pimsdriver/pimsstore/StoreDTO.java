@@ -16,6 +16,8 @@ public class StoreDTO {
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(StoreDTO.class.toString());
 
+	public static long createUploadEntry(final Connection con, String finess, )
+	
 	public static void createTempTables (final Connection con) throws SQLException {
 		try (final PreparedStatement ps = con.prepareStatement("CREATE TEMPORARY TABLE pmel_temp ( \n"
 				+ " pmel_root bigint NOT NULL, \n"
@@ -113,26 +115,6 @@ public class StoreDTO {
 		
 		// STORES GROUPS
 		storeGroupsInTemp(con, groupsReader, pmsiOffset);
-	}
-
-
-	public void setStatus(final Connection con, final long id, final String status, final String finess,
-			Object ... parameters) throws SQLException {
-		if ((parameters.length & 1) != 0) {
-			// ODD NUMBER OF PARAMETERS
-			throw new SQLException("odd number of parameters");
-		}
-
-		try (final PreparedStatement ps = con.prepareStatement(
-				"UPDATE plud_pmsiupload SET plud_processed = ?::plud_status, plud_finess = ?, "
-						+ "plud_arguments = plud_arguments || hstore(?) WHERE plud_id = ?;")) {
-			ps.setString(1, status);
-			ps.setString(2, finess);
-			Array parametersArray = con.createArrayOf("text", parameters);
-			ps.setArray(3, parametersArray);
-			ps.setLong(4, id);
-			ps.execute();
-		}
 	}
 
 	private static void storePmsiInTemp(final Connection con, final Reader reader, final Long pmsiOffset) throws SQLException, NumberFormatException, IOException {

@@ -2,6 +2,7 @@ package com.github.pjpo.pimsdriver.processor;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.time.LocalDate;
 
 import com.github.aiderpmsi.pims.parser.linestypes.IPmsiLine;
 import com.github.aiderpmsi.pims.parser.linestypes.IPmsiLine.Element;
@@ -21,6 +22,8 @@ public class RssLineHandler extends PmsiLineHandler {
 	private String finess = null;
 	
 	private String version = null;
+	
+	private LocalDate pmsiDate = null;
 	
 	public RssLineHandler(final long pmsiPosition, final Writer writer) throws IOException {
 		super(pmsiPosition, writer);
@@ -44,6 +47,9 @@ public class RssLineHandler extends PmsiLineHandler {
 			initsearch : for (Element element : line.getElements()) {
 				if (element.getName().equals("Finess")) {
 					finess = element.getElement().toString();
+					break initsearch;
+				} else if (element.getName().equals("FinPeriode")) {
+					pmsiDate = LocalDate.parse(element.getElement().toString(), format);
 					break initsearch;
 				}
 			}
@@ -71,5 +77,10 @@ public class RssLineHandler extends PmsiLineHandler {
 	@Override
 	public String getVersion() {
 		return version;
+	}
+
+	@Override
+	public LocalDate getPmsiDate() {
+		return pmsiDate;
 	}
 }

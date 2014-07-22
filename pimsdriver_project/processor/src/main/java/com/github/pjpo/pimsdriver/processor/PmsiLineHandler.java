@@ -2,6 +2,9 @@ package com.github.pjpo.pimsdriver.processor;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import com.github.aiderpmsi.pims.parser.linestypes.ConfiguredPmsiLine;
 import com.github.aiderpmsi.pims.parser.linestypes.EndOfFilePmsiLine;
 import com.github.aiderpmsi.pims.parser.linestypes.IPmsiLine;
@@ -15,6 +18,9 @@ import com.github.aiderpmsi.pims.parser.utils.Utils.LineHandler;
  */
 public abstract class PmsiLineHandler implements LineHandler {
 
+	/** Date format in Pmsi */
+	protected final DateTimeFormatter format = new DateTimeFormatterBuilder().appendPattern("ddMMyyyy").toFormatter();
+	
 	/** Line number */
 	private String lineNumber = null;
 	
@@ -87,5 +93,7 @@ public abstract class PmsiLineHandler implements LineHandler {
 	public abstract String getFiness();
 
 	public abstract String getVersion();
+
+	public abstract LocalDate getPmsiDate();
 
 }

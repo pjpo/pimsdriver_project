@@ -2,6 +2,7 @@ package com.github.pjpo.pimsdriver.processor;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.time.LocalDate;
 
 import com.github.aiderpmsi.pims.parser.linestypes.IPmsiLine;
 import com.github.aiderpmsi.pims.parser.linestypes.IPmsiLine.Element;
@@ -21,6 +22,8 @@ public class RsfLineHandler extends PmsiLineHandler {
 	private String finess = null;
 	
 	private String version = null;
+	
+	private LocalDate datePmsi = null;
 	
 	public RsfLineHandler(final long pmsiPosition, final Writer writer) throws IOException {
 		super(pmsiPosition, writer);
@@ -44,6 +47,8 @@ public class RsfLineHandler extends PmsiLineHandler {
 			startsearch : for (Element element : line.getElements()) {
 				if (element.getName().equals("Finess")) {
 					finess = element.getElement().toString();
+				} else if (element.getName().equals("DateFin")) {
+					datePmsi = LocalDate.parse(element.getElement().toString(), format);
 					break startsearch;
 				}
 			}
@@ -71,6 +76,11 @@ public class RsfLineHandler extends PmsiLineHandler {
 	@Override
 	public String getVersion() {
 		return version;
+	}
+	
+	@Override
+	public LocalDate getPmsiDate() {
+		return datePmsi;
 	}
 	
 }
