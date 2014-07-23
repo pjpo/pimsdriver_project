@@ -36,8 +36,6 @@ CREATE TABLE public.plud_pmsiupload (
   plud_year integer NOT NULL,
   plud_month smallint NOT NULL,
   plud_dateenvoi timestamp with time zone NOT NULL,
-  plud_rsf_oid oid,
-  plud_rss_oid oid,
   plud_arguments hstore NOT NULL DEFAULT hstore(''),
   CONSTRAINT plud_pmsiupload_pkey PRIMARY KEY (plud_id)
 );

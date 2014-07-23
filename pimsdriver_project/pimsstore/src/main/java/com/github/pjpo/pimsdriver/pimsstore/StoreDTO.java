@@ -4,11 +4,11 @@ package com.github.pjpo.pimsdriver.pimsstore;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.logging.Logger;
 
 public class StoreDTO {
@@ -16,7 +16,30 @@ public class StoreDTO {
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(StoreDTO.class.toString());
 
-	public static long createUploadEntry(final Connection con, String finess, )
+	public static long createUploadEntry(final Connection con, final String finess, final LocalDate datePmsi,
+			final String rsfVersion, final String rssVersion) throws SQLException {
+		try (final PreparedStatement ps = con.prepareStatement("INSERT INTO plud_pmsiupload("
+				+ "plud_finess, plud_year, plud_month, "
+				+ "plud_dateenvoi, plud_arguments) "
+				+ "VALUES (?, ?, ?, "
+				+ "transaction_timestamp(), hstore('rsfversion'::text, ?::text) || hstore('rssversion'::text, ?::text)) "
+				+ "RETURNING plud_id;")) {
+
+			ps.setString(1, finess);
+			ps.setInt(2, datePmsi.getYear());
+			ps.setInt(3, datePmsi.getMonthValue());
+			ps.setString(4, rsfVersion);
+			ps.setString(5, rssVersion);
+				
+			// EXECUTE QUERY
+			try (final ResultSet rs = ps.executeQuery()) {
+				rs.next();
+				return rs.getLong(1);
+			}
+			
+		}
+	}
+
 	
 	public static void createTempTables (final Connection con) throws SQLException {
 		try (final PreparedStatement ps = con.prepareStatement("CREATE TEMPORARY TABLE pmel_temp ( \n"
