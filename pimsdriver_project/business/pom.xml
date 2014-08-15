@@ -27,6 +27,11 @@
 			<artifactId>datasource</artifactId>
 			<type>ejb</type>
 		</dependency>  
+	 	<dependency>
+			<groupId>com.github.pjpo.pimsdriver</groupId>
+			<artifactId>pimsstore</artifactId>
+			<type>ejb</type>
+		</dependency>  
  		<dependency>
 			<groupId>com.github.pjpo.pimsdriver</groupId>
 			<artifactId>webui</artifactId>

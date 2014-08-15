@@ -16,7 +16,7 @@ import javax.ejb.AsyncResult;
 
 import com.github.pjpo.pimsdriver.processor.ErrorCatcher.Executor;
 
-public abstract class ParserBean implements Parser {
+public abstract class ParserBean {
 
 	/** Default logger */
 	private final static Logger LOGGER = Logger
@@ -77,7 +77,6 @@ public abstract class ParserBean implements Parser {
 		}
 	}
 
-	@Override
 	public String getFiness() {
 		synchronized (readLock) {
 			if (parsed == false)
@@ -87,7 +86,6 @@ public abstract class ParserBean implements Parser {
 		}
 	}
 	
-	@Override
 	public String getVersion() {
 		synchronized (readLock) {
 			if (parsed == false)
@@ -97,7 +95,6 @@ public abstract class ParserBean implements Parser {
 		}
 	}
 	
-	@Override
 	public Long getEndPmsiPosition() {
 		synchronized (readLock) {
 			if (parsed = false)

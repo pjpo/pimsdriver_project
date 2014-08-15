@@ -15,6 +15,7 @@
 	<modules>
 		<module>datasource</module>
 		<module>processor</module>
+		<module>pimsstore</module>
 		<module>business</module>
 		<module>webui</module>
 	</modules>
@@ -51,6 +52,13 @@
 			<dependency>
 				<groupId>com.github.pjpo.pimsdriver</groupId>
 				<artifactId>datasource</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+				<type>ejb</type>
+			</dependency>
+
+			<dependency>
+				<groupId>com.github.pjpo.pimsdriver</groupId>
+				<artifactId>pimsstore</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 				<type>ejb</type>
 			</dependency>
