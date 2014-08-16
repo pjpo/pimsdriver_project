@@ -30,7 +30,7 @@ public class DataSourceProviderBean implements DataSourceProvider {
 		try {
 			InitialContext jndiContext = new InitialContext();
 			Object lookupObject = jndiContext
-					.lookup("com.github.aiderpmsi.pimsdriver.datasource");
+					.lookup("com.github.pjpo.pimsdriver.datasource");
 			if (lookupObject instanceof DataSource) {
 				dataSource = (DataSource) lookupObject;
 
