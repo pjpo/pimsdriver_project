@@ -1,6 +1,7 @@
 package com.github.pjpo.pimsdriver.processor.ejb;
 
 import java.io.Reader;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.concurrent.Future;
 
@@ -20,6 +21,8 @@ public interface Parser {
 	public void remove();
 	
 	public void clean();
+	
+	public LocalDate getDatePmsi();
 	
 	public String getFiness();
 

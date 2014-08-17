@@ -117,6 +117,13 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.github.pjpo.pimsdriver</groupId>
+			<artifactId>pimsstore</artifactId>
+			<version>0.0.1-SNAPSHOT</version><!--$NO-MVN-MAN-VER$ -->
+			<type>ejb-client</type>
+		</dependency>
+
+		<dependency>
 			<groupId>com.github.pjpo.commons</groupId>
 			<artifactId>ioutils</artifactId>
 			<version>0.0.1-SNAPSHOT</version>

@@ -5,6 +5,7 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -27,6 +28,9 @@ public abstract class ParserBean implements Parser {
 
 	/** Stores the finess of this Pmsi file (if pmsi file parsing has succedded) */
 	protected String finess = null;
+	
+	/** Stores the date of the pmsi (month an year) */
+	protected LocalDate datePmsi = null;
 	
 	/** Stores the version of this Pmsi file (if pmsi file parsing has succedded) */
 	protected String version = null;
@@ -65,13 +69,13 @@ public abstract class ParserBean implements Parser {
 				// BE SURE TO CLEANUP WHOLE READER If AN ERROR HAPPENED
 				while (reader.skip(65536L) != 0) {}
 				// SETS THE RESULT OF PARSING
-				setResults(true, pr.finess, pr.version, pr.endPmsiPosition);
+				setResults(true, pr.finess, pr.version, pr.endPmsiPosition, pr.datePmsi);
 				// RETURNS THE LIST OF ERRORS
 				return new AsyncResult<Collection<String>>(errors);
 			} catch (Throwable e) {
 				LOGGER.log(Level.SEVERE, "Unable to process Pmsi : ", e);
 				// REINITS RSF DATAS
-				setResults(false, null, null, null);
+				setResults(false, null, null, null, null);
 				return null;
 			}
 		}
@@ -107,6 +111,11 @@ public abstract class ParserBean implements Parser {
 		}
 	}
 	
+	@Override
+	public LocalDate getDatePmsi() {
+		return datePmsi;
+	}
+	
 	protected Reader getReader(Path path) {
 		synchronized(writeLock) {
 			try {
@@ -124,7 +133,7 @@ public abstract class ParserBean implements Parser {
 		synchronized (writeLock) {
 			try {
 				executor.execute();
-				setResults(false, null, null, null);
+				setResults(false, null, null, null, null);
 			} catch (Throwable e) {
 				LOGGER.log(Level.SEVERE, "Unable to clean bean", e);
 			}
@@ -142,12 +151,13 @@ public abstract class ParserBean implements Parser {
 		}
 	}
 	
-	private void setResults(final Boolean parsed, final String finess, final String version, final Long endPmsiPosition) {
+	private void setResults(final Boolean parsed, final String finess, final String version, final Long endPmsiPosition, final LocalDate datePmsi) {
 		synchronized (readLock) {
 			this.parsed = parsed;
 			this.finess = finess;
 			this.version = version;
 			this.endPmsiPosition = endPmsiPosition;
+			this.datePmsi = datePmsi;
 		}
 	}
 
@@ -167,6 +177,7 @@ public abstract class ParserBean implements Parser {
 		public String finess;
 		public String version;
 		public Long endPmsiPosition;
+		public LocalDate datePmsi;
 	}
 	
 	@FunctionalInterface

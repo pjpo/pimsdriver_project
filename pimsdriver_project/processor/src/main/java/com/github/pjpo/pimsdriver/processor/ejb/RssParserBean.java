@@ -70,6 +70,7 @@ public class RssParserBean extends ParserBean implements RssParser {
 				result.finess = handler.getFiness();
 				result.version = handler.getVersion();
 				result.endPmsiPosition = handler.getPmsiPosition();
+				result.datePmsi = handler.getPmsiDate();
 				return result;
 			}
 		});

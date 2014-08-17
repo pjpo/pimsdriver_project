@@ -57,6 +57,7 @@ public class RsfParserBean extends ParserBean implements RsfParser {
 				result.finess = handler.getFiness();
 				result.version = handler.getVersion();
 				result.endPmsiPosition = handler.getPmsiPosition();
+				result.datePmsi = handler.getPmsiDate();
 				return result;
 			}
 		});
