@@ -3,7 +3,8 @@ package com.github.aiderpmsi.pimsdriver.vaadin.upload;
 import java.io.Reader;
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Semaphore;
+import java.util.logging.Logger;
 
 import javax.naming.InitialContext;
 import javax.servlet.ServletContext;
@@ -22,9 +23,13 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Window;
 
+@SuppressWarnings("serial")
 public class UploadWindow extends Window {
-
-	private static final long serialVersionUID = -2583394688969956613L;
+	
+	/** Default logger */
+	@SuppressWarnings("unused")
+	private final static Logger LOGGER = Logger
+			.getLogger(UploadWindow.class.getName());
 	
 	/** Window Layout */
 	private final CssLayout layout = new CssLayout();
@@ -78,7 +83,7 @@ public class UploadWindow extends Window {
     private final Button okButton;
 
     /** Prevent 2 files beeing uploaded together */
-    private final ReentrantLock lock = new ReentrantLock(true);
+    private final Semaphore lock = new Semaphore(1, true);
     
     public UploadWindow(ServletContext context) {
 		// TITLE
@@ -200,7 +205,7 @@ public class UploadWindow extends Window {
 			// UPDATES PMSI DATE
 			updatePmsiDate();
     	} finally {
-    		lock.unlock();
+    		lock.release();
     	}
     }
     
@@ -258,10 +263,9 @@ public class UploadWindow extends Window {
     	}
     }
     
-    @SuppressWarnings("serial")
 	private static class RsfFileUploader extends FileUploader<RsfParser> {
 
-    	public RsfFileUploader(final String type, final Window window, final ReentrantLock lock) {
+    	public RsfFileUploader(final String type, final Window window, final Semaphore lock) {
     		super(lock);
     		setParser((RsfParser) ActionEncloser.execute((throwable) -> "EJB rsf processor not found", 
     				() ->  new InitialContext().lookup("java:global/business/processor-0.0.1-SNAPSHOT/RsfParserBean!com.github.pjpo.pimsdriver.processor.ejb.RsfParser")));
@@ -273,10 +277,9 @@ public class UploadWindow extends Window {
     	
     }
 
-    @SuppressWarnings("serial")
 	public class RssFileUploader extends FileUploader<RssParser> {
 
-    	public RssFileUploader(final String type, final Window window, final ReentrantLock lock) {
+    	public RssFileUploader(final String type, final Window window, final Semaphore lock) {
     		super(lock);
     		setParser((RssParser) ActionEncloser.execute((throwable) -> "EJB rss processor not found", 
     				() ->  new InitialContext().lookup("java:global/business/processor-0.0.1-SNAPSHOT/RssParserBean!com.github.pjpo.pimsdriver.processor.ejb.RssParser")));

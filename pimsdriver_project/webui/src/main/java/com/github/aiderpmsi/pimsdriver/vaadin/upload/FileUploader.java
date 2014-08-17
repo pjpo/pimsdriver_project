@@ -5,8 +5,11 @@ import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.concurrent.Future;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Semaphore;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.io.output.WriterOutputStream;
 
 import com.github.aiderpmsi.pimsdriver.vaadin.utils.aop.ActionEncloser;
@@ -17,6 +20,10 @@ import com.vaadin.ui.Upload.Receiver;
 @SuppressWarnings("serial")
 public abstract class FileUploader<T extends Parser> implements Receiver {
 
+	/** Default logger */
+	private final static Logger LOGGER = Logger
+			.getLogger(FileUploader.class.getName());
+	
 	/** Parser (generally from ejb) */
 	private T parser = null;
 
@@ -24,9 +31,9 @@ public abstract class FileUploader<T extends Parser> implements Receiver {
 	private Future<Collection<String>> futureErrorsUpload = null;
 
 	/** Blocks while an upload exists  */
-	private final ReentrantLock lock;
+	private final Semaphore lock;
 	
-	protected FileUploader(final ReentrantLock lock) {
+	protected FileUploader(final Semaphore lock) {
 		this.lock = lock;
 	}
 	
@@ -42,15 +49,22 @@ public abstract class FileUploader<T extends Parser> implements Receiver {
     public OutputStream receiveUpload(String filename,
                                       String mimeType) {
 		// LOCKS IF POSSIBLE
-		lock.lock();
-		
-		// CREATES THE LINK BETWEEN WRITER AND READER
-		final WriterToReader wtr = new WriterToReader();
-		// PROCESSES THE GIVEN FILE
-		futureErrorsUpload = parser.process(wtr.getReader(), 0L);
-		// RETURNS THE WRITER WE HAVE TO WRITE INTO
-		return ActionEncloser.execute((throwable) -> "Uploading error",
-				() -> new WriterOutputStream(wtr, Charset.forName("UTF-8")));
+		try {
+			lock.acquire();
+				
+			// CREATES THE LINK BETWEEN WRITER AND READER
+			final WriterToReader wtr = new WriterToReader();
+			// PROCESSES THE GIVEN FILE
+			futureErrorsUpload = parser.process(wtr.getReader(), 0L);
+			// RETURNS THE WRITER WE HAVE TO WRITE INTO
+			return ActionEncloser.execute((throwable) -> "Uploading error",
+					() -> new WriterOutputStream(wtr, Charset.forName("UTF-8")));
+		} catch (InterruptedException e) {
+			// ONLY LOG
+			LOGGER.log(Level.WARNING, "Upload interrupted");
+			// RETURN VOID OUTPUTSTREAM
+			return new NullOutputStream();
+		}
     }
 
 	/**
