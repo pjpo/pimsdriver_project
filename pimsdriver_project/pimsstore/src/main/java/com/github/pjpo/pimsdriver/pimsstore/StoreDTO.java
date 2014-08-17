@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.time.LocalDate;
 import java.util.logging.Logger;
 
@@ -153,11 +154,23 @@ public class StoreDTO {
 					ps.addBatch();
 				}
 				if (posInLine == 0 || posInLine == 3) {
-					ps.setLong(posInLine + 1, line.startsWith(":") ? Long.parseLong(line.substring(1)) : null);
+					if (line.startsWith(":")) {
+						ps.setLong(posInLine + 1, Long.parseLong(line.substring(1)));
+					} else {
+						ps.setNull(posInLine + 1, Types.BIGINT);
+					}
 				} else if (posInLine == 1 || posInLine == 2) {
-					ps.setLong(posInLine + 1, line.startsWith(":") ? Long.parseLong(line.substring(1)) + pmsiOffset: null);
+					if (line.startsWith(":")) {
+						ps.setLong(posInLine + 1, Long.sum(Long.parseLong(line.substring(1)), pmsiOffset));
+					} else {
+						ps.setNull(posInLine + 1, Types.BIGINT);
+					}
 				} else if (posInLine == 4) {
-					ps.setString(posInLine + 1, line.startsWith(":") ? line.substring(1) : null);
+					if (line.startsWith(":")) {
+						ps.setString(posInLine + 1, line.substring(1));
+					} else {
+						ps.setNull(posInLine + 1, Types.VARCHAR);
+					}
 				}
 				
 				// SENDS THE BATCH EACH 1000 ROWS
