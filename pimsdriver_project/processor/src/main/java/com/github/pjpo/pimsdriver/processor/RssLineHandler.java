@@ -47,7 +47,6 @@ public class RssLineHandler extends PmsiLineHandler {
 			initsearch : for (Element element : line.getElements()) {
 				if (element.getName().equals("Finess")) {
 					finess = element.getElement().toString();
-					break initsearch;
 				} else if (element.getName().equals("FinPeriode")) {
 					pmsiDate = LocalDate.parse(element.getElement().toString(), format);
 					break initsearch;

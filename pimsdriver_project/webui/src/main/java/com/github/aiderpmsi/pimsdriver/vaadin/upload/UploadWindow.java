@@ -236,6 +236,7 @@ public class UploadWindow extends Window {
     	((FileUploader<?>) rsfFilePicker.getReceiver()).clean();
     	progressBar.setValue(0F);
     	updateFiness();
+    	updatePmsiDate();
 	}
 
     private void upload() {
