@@ -2,8 +2,7 @@ package com.github.aiderpmsi.pimsdriver.vaadin.upload;
 
 import java.io.Reader;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
 import javax.naming.InitialContext;
@@ -11,6 +10,7 @@ import javax.servlet.ServletContext;
 
 import com.github.aiderpmsi.pimsdriver.vaadin.utils.aop.ActionEncloser;
 import com.github.pjpo.pimsdriver.pimsstore.ejb.Store;
+import com.github.pjpo.pimsdriver.processor.ejb.ParsingResult;
 import com.github.pjpo.pimsdriver.processor.ejb.RsfParser;
 import com.github.pjpo.pimsdriver.processor.ejb.RssParser;
 import com.vaadin.server.ThemeResource;
@@ -21,6 +21,8 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Upload;
+import com.vaadin.ui.Upload.StartedEvent;
+import com.vaadin.ui.Upload.StartedListener;
 import com.vaadin.ui.Window;
 
 @SuppressWarnings("serial")
@@ -82,8 +84,8 @@ public class UploadWindow extends Window {
 	/** OK Button */
     private final Button okButton;
 
-    /** Prevent 2 files beeing uploaded together */
-    private final Semaphore lock = new Semaphore(1, true);
+    /** List of pendingUploads */
+    private final LinkedBlockingQueue<StartedEvent> pendingUploads = new LinkedBlockingQueue<>(); 
     
     public UploadWindow(ServletContext context) {
 		// TITLE
@@ -100,8 +102,12 @@ public class UploadWindow extends Window {
         // SELECT LAYOUT
         setContent(layout);
         
+        // SETS ONE PENDING UPLOAD
+        StartedListener startedListener = (startedEvent) -> pendingUploads.offer(startedEvent);
+        
         // ADD RSF FILE PICKER
-        rsfFilePicker = new Upload("RSF : ", new RsfFileUploader("rsf", this, lock));
+        rsfFilePicker = new Upload("RSF : ", new RsfFileUploader("rsf", this));
+        rsfFilePicker.addStartedListener(startedListener);
         rsfFilePicker.setImmediate(true);
         rsfFilePicker.setButtonCaption("Téléverser");
         rsfLayout.addComponent(rsfFilePicker);
@@ -120,7 +126,8 @@ public class UploadWindow extends Window {
         layout.addComponent(rsfLayout);
         
         // ADD RSS FILE PICKER
-        rssFilePicker = new Upload("RSS", new RssFileUploader("rss", this, lock));
+        rssFilePicker = new Upload("RSS", new RssFileUploader("rss", this));
+        rssFilePicker.addStartedListener(startedListener);
         rssFilePicker.setImmediate(true);
         rssFilePicker.setButtonCaption("Téléverser");
         rssLayout.addComponent(rssFilePicker);
@@ -178,23 +185,32 @@ public class UploadWindow extends Window {
      * @param receiverProgressBar
      */
     private void pmsiUploaded(final FileUploader<?> receiver, final ProgressBar receiverProgressBar) {
-    	try {
-	    	// 2 -WAIT UPLOAD FINISH
-	    	final Collection<String> errors = receiver.getErrors();
-			// 3 -VERIFY THAT THE UPLOAD SUCCEDED
-	    	if (errors.size() > 0) {
+    	synchronized(pendingUploads) {
+        	// 1 - SYNCHRONIZES PARSING RESULTS WITH RECEIVER, WAITING UPLOAD FINISH IF NEEDED
+    		receiver.syncParsingResults();
+    		// 2 - GETS PARSING RESULTS
+    		final ParsingResult pr = receiver.getParsingResults(); 
+			// 2 -VERIFY THAT THE UPLOAD SUCCEDED (1)
+	    	if (pr != null && pr.errors != null && pr.errors.size() > 0) {
 	    		Notification.show("Mauvais fichier PMSI", Notification.Type.WARNING_MESSAGE);
 	    		// REINIT UPLOAD BAR
 	    		receiverProgressBar.setValue(0F);
-	    	} else {
+	    	}
+    		// 3 - VERIFY THAT THE UPLOAD SUCCEDED (2)
+	    	else if (pr == null || pr.errors == null) {
+	    		Notification.show("Echec de l'upload", Notification.Type.WARNING_MESSAGE);
+	    		// REINIT UPLOAD BAR
+	    		receiverProgressBar.setValue(0F);
+	    	}
+	    	else {
 	    		// 4 - VERIFY THAT FINESSES MATCHES
-	    		if (finess != null && !finess.equals(receiver.getFiness())) {
+	    		if (finess != null && !finess.equals(pr.finess)) {
 	        		// REINIT DOWNLOAD
 	    			remove(receiver, receiverProgressBar);
 	    			Notification.show("Finess RSF et RSS ne correspondent pas", Notification.Type.WARNING_MESSAGE);
 	    		}
 	    		// 5 - VERIFY THAT PMSI DATES MATCH
-	    		if (pmsiDate != null && !pmsiDate.equals(receiver.getPmsiDate())) {
+	    		if (pmsiDate != null && !pmsiDate.equals(pr.datePmsi)) {
 	    			// REINIT DOWNLOAD
 	    			remove(receiver, receiverProgressBar);
 	    			Notification.show("Date du pmsi RSF et RSS ne correspondent pas", Notification.Type.WARNING_MESSAGE);
@@ -204,8 +220,8 @@ public class UploadWindow extends Window {
 			updateFiness();
 			// UPDATES PMSI DATE
 			updatePmsiDate();
-    	} finally {
-    		lock.release();
+			// REMOVES THIS PENDING UPLOAD
+			pendingUploads.poll();
     	}
     }
     
@@ -214,8 +230,8 @@ public class UploadWindow extends Window {
     			{(FileUploader<?>) rsfFilePicker.getReceiver(), (FileUploader<?>) rssFilePicker.getReceiver()};
     	String newFiness = null;
     	for (FileUploader<?> fu : fileUploaders) {
-    		if (fu.getFiness() != null)
-    			newFiness = fu.getFiness();
+    		if (fu.getParsingResults() != null && fu.getParsingResults().finess != null)
+    			newFiness = fu.getParsingResults().finess;
     	}
     	if (finess != newFiness) {
     		finess = newFiness;
@@ -228,8 +244,8 @@ public class UploadWindow extends Window {
     			{(FileUploader<?>) rsfFilePicker.getReceiver(), (FileUploader<?>) rssFilePicker.getReceiver()};
     	LocalDate newPmsiDate = null;
     	for (FileUploader<?> fu : fileUploaders) {
-    		if (fu.getPmsiDate() != null)
-    			newPmsiDate = fu.getPmsiDate();
+    		if (fu.getParsingResults() != null && fu.getParsingResults().datePmsi != null)
+    			newPmsiDate = fu.getParsingResults().datePmsi;
     	}
     	if (pmsiDate != newPmsiDate) {
     		pmsiDate = newPmsiDate;
@@ -238,35 +254,47 @@ public class UploadWindow extends Window {
     }
 
     private void remove(final FileUploader<?> receiver, final ProgressBar progressBar) {
-    	((FileUploader<?>) rsfFilePicker.getReceiver()).clean();
-    	progressBar.setValue(0F);
-    	updateFiness();
-    	updatePmsiDate();
+    	// ONLY ACCEPT TO REMOVE SOMETHING IF PENDINGUPLOADS IS VOID
+    	synchronized(pendingUploads) {
+    		if (pendingUploads.size() != 0) {
+    			Notification.show("Un fichier est en cours de transfert", Notification.Type.WARNING_MESSAGE);
+    		} else {
+    			((FileUploader<?>) rsfFilePicker.getReceiver()).clean();;
+    			progressBar.setValue(0F);
+    			updateFiness();
+    			updatePmsiDate();
+    		}
+    	}
 	}
 
     private void upload() {
-    	final RsfFileUploader rsfFileUploader = (RsfFileUploader) rsfFilePicker.getReceiver();
-    	final RssFileUploader rssFileUploader = (RssFileUploader) rssFilePicker.getReceiver();
-    	if (rsfFileUploader.getFiness() == null) {
-    		Notification.show("Au moins un fichier RSF doit être proposé", Notification.Type.WARNING_MESSAGE);
-    	} else {
-    		final Store store = (Store) ActionEncloser.execute((throwable) -> "EJB Store not found",
-    				() -> new InitialContext().lookup("java:global/business/pimsstore-0.0.1-SNAPSHOT/StoreBean!com.github.pjpo.pimsdriver.pimsstore.ejb.Store"));
-    		store.storePmsiFiles(
-    				rsfFileUploader.getPmsiDate(),
-    				rsfFileUploader.getFiness(),
-    				rsfFileUploader.getVersion(),
-    				rssFileUploader.getVersion(),
-    				() -> rsfFileUploader.openResultReader(),
-    				rssFileUploader.getFiness() != null ? () -> rssFileUploader.openResultReader() : null, 
-    				rssFileUploader.getFiness() != null ? () -> rssFileUploader.openGroupsReader() : null);
+    	synchronized(pendingUploads) {
+    		if (pendingUploads.size() != 0) {
+    			Notification.show("Un fichier est en cours de transfert", Notification.Type.WARNING_MESSAGE);
+    		} else {
+    			final RsfFileUploader rsfFileUploader = (RsfFileUploader) rsfFilePicker.getReceiver();
+    			final RssFileUploader rssFileUploader = (RssFileUploader) rssFilePicker.getReceiver();
+    			if (rsfFileUploader.getParsingResults() == null || rsfFileUploader.getParsingResults().finess == null) {
+    				Notification.show("Au moins un fichier RSF doit être proposé", Notification.Type.WARNING_MESSAGE);
+    			} else {
+    				final Store store = (Store) ActionEncloser.execute((throwable) -> "EJB store not found",
+    						() -> new InitialContext().lookup("java:global/business/pimsstore-0.0.1-SNAPSHOT/StoreBean!com.github.pjpo.pimsdriver.pimsstore.ejb.Store"));
+    				store.storePmsiFiles(
+    						rsfFileUploader.getParsingResults().datePmsi,
+    						rsfFileUploader.getParsingResults().finess,
+    						rsfFileUploader.getParsingResults().version,
+    						rssFileUploader.getParsingResults() != null ? rssFileUploader.getParsingResults().version : null,
+    						() -> rsfFileUploader.openResultReader(),
+    							rssFileUploader.getParsingResults() != null ? () -> rssFileUploader.openResultReader() : null, 
+    							rssFileUploader.getParsingResults() != null ? () -> rssFileUploader.openGroupsReader() : null);
+    			}
+    		}
     	}
     }
     
 	private static class RsfFileUploader extends FileUploader<RsfParser> {
 
-    	public RsfFileUploader(final String type, final Window window, final Semaphore lock) {
-    		super(lock);
+    	public RsfFileUploader(final String type, final Window window) {
     		setParser((RsfParser) ActionEncloser.execute((throwable) -> "EJB rsf processor not found", 
     				() ->  new InitialContext().lookup("java:global/business/processor-0.0.1-SNAPSHOT/RsfParserBean!com.github.pjpo.pimsdriver.processor.ejb.RsfParser")));
         }
@@ -279,8 +307,7 @@ public class UploadWindow extends Window {
 
 	public class RssFileUploader extends FileUploader<RssParser> {
 
-    	public RssFileUploader(final String type, final Window window, final Semaphore lock) {
-    		super(lock);
+    	public RssFileUploader(final String type, final Window window) {
     		setParser((RssParser) ActionEncloser.execute((throwable) -> "EJB rss processor not found", 
     				() ->  new InitialContext().lookup("java:global/business/processor-0.0.1-SNAPSHOT/RssParserBean!com.github.pjpo.pimsdriver.processor.ejb.RssParser")));
         }
@@ -293,4 +320,5 @@ public class UploadWindow extends Window {
     		return getParser().getGroupsReader();
     	}
     }
+
 }
