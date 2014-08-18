@@ -126,7 +126,7 @@ public class StoreDTO {
 		final long pmsiOffset = getMaxPmsi(con);
 		
 		// STORES RSF
-		storePmsiInTemp(con, rsfReader, pmsiOffset);
+		storePmsiInTemp(con, rsfReader, pmsiOffset + 1L);
 	}
 	
 	public static void storeRssInTemp(final Connection con, final Reader rssReader, final Reader groupsReader) throws IOException, SQLException {
@@ -134,10 +134,10 @@ public class StoreDTO {
 		final long pmsiOffset = getMaxPmsi(con);
 		
 		// STORES RSS
-		storePmsiInTemp(con, rssReader, pmsiOffset);
+		storePmsiInTemp(con, rssReader, pmsiOffset + 1L);
 		
 		// STORES GROUPS
-		storeGroupsInTemp(con, groupsReader, pmsiOffset);
+		storeGroupsInTemp(con, groupsReader, pmsiOffset + 1L);
 	}
 
 	private static void storePmsiInTemp(final Connection con, final Reader reader, final Long pmsiOffset) throws SQLException, NumberFormatException, IOException {
@@ -228,6 +228,7 @@ public class StoreDTO {
 			try {
 				executor.execute();
 				con.commit();
+				break;
 			} catch (final Throwable e) {
 				if (e instanceof SQLException && ((SQLException)e).getSQLState().equals("40001")) {
 					// WAS SERIALIZATION EXCEPTION, RETRY AND COMMIT
