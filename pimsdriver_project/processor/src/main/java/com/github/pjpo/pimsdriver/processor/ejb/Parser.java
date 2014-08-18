@@ -1,8 +1,6 @@
 package com.github.pjpo.pimsdriver.processor.ejb;
 
 import java.io.Reader;
-import java.time.LocalDate;
-import java.util.Collection;
 import java.util.concurrent.Future;
 
 public interface Parser {
@@ -15,11 +13,5 @@ public interface Parser {
 	 */
 	public Future<ParsingResult> process(Reader reader, Long startPmsiPosition);
 
-	public static class ParsingResult {
-		public Collection<String> errors;
-		public LocalDate datePmsi;
-		public String finess;
-		public String version;
-		public Long endPmsiPosition;
-	}
+	public void remove();
 }
