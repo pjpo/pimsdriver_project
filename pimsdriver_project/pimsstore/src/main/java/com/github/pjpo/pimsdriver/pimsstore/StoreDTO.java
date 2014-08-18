@@ -44,7 +44,6 @@ public class StoreDTO {
 	
 	public static void createTempTables (final Connection con) throws SQLException {
 		try (final PreparedStatement ps = con.prepareStatement("CREATE TEMPORARY TABLE pmel_temp ( \n"
-				+ " pmel_root bigint NOT NULL, \n"
 				+ " pmel_position bigint NOT NULL, \n"
 				+ " pmel_parent bigint, \n"
 				+ " pmel_type character varying NOT NULL, \n"
@@ -66,7 +65,7 @@ public class StoreDTO {
 	public static void copyTempTables(final Connection con, final long id) throws SQLException {
 		try (final PreparedStatement ps = con.prepareStatement(
 				"INSERT INTO pmel.pmel_" + id + " (pmel_root, pmel_position, pmel_parent, pmel_type, pmel_line, pmel_content, pmel_arguments) \n"
-				+ "SELECT pmel_root, pmel_position, pmel_parent, pmel_type, pmel_line, pmel_content, pmel_arguments FROM pmel_temp;\n"
+				+ "SELECT " + id + ", pmel_position, pmel_parent, pmel_type, pmel_line, pmel_content, pmel_arguments FROM pmel_temp;\n"
 				+ "INSERT INTO pmgr.pmgr_" + id + " (pmel_id, pmel_root, pmgr_racine, pmgr_modalite, pmgr_gravite, pmgr_erreur) \n"
 				+ "SELECT pmel.pmel_id, " + id + ", pmgr.pmgr_racine, pmgr.pmgr_modalite, pmgr.pmgr_gravite, pmgr.pmgr_erreur \n"
 				+ "FROM pmgr_temp pmgr \n"
@@ -145,16 +144,18 @@ public class StoreDTO {
 		// STORES THE ELEMENTS
 		try (final BufferedReader br = new BufferedReader(reader);
 				final PreparedStatement ps = con.prepareStatement(
-				"INSERT INTO pmel_temp(pmel_root, pmel_position, pmel_parent, pmel_line, pmel_content) VALUES (?, ?, ?, ?, ?);")) {
+				"INSERT INTO pmel_temp(pmel_position, pmel_parent, pmel_type, pmel_line, pmel_content) VALUES (?, ?, ?, ?, ?);")) {
 			String line;
 			for (Long lineNb = 0L ; (line = br.readLine()) != null ; lineNb = Long.sum(lineNb, 1L)) {
 				// FILLS STATEMENTS
 				int posInLine = (int) (lineNb % 5);
+				
 				if (posInLine == 0L && lineNb != 0L) {
 					ps.addBatch();
 				}
-				if (posInLine == 0 || posInLine == 3) {
-					ps.setLong(posInLine + 1, Long.parseLong(line));
+				
+				if (posInLine == 0) {
+					ps.setLong(posInLine + 1, Long.sum(Long.parseLong(line), pmsiOffset));
 				} else if (posInLine == 1) {
 					if (line.startsWith(":")) {
 						ps.setLong(posInLine + 1, Long.sum(Long.parseLong(line.substring(1)), pmsiOffset));
@@ -163,10 +164,12 @@ public class StoreDTO {
 					}
 				} else if (posInLine == 2 || posInLine == 4) {
 					ps.setString(posInLine + 1, line);
+				} else if (posInLine == 3) {
+					ps.setLong(posInLine + 1, Long.parseLong(line));
 				}
 				
 				// SENDS THE BATCH EACH 1000 ROWS
-				if (lineNb % 1000 == 0) {
+				if (lineNb != 0L && lineNb % 1000 == 0) {
 					ps.executeBatch();
 				}
 			}
@@ -204,7 +207,11 @@ public class StoreDTO {
 					ps.addBatch();
 				}
 				if (posInLine == 0) {
-					ps.setLong(posInLine + 1, line.startsWith(":") ? Long.parseLong(line.substring(1)) + pmsiOffset : null);
+					if (line.startsWith(":")) {
+						ps.setLong(posInLine + 1, Long.sum(Long.parseLong(line.substring(1)),  pmsiOffset));
+					} else {
+						ps.setNull(posInLine + 1, Types.BIGINT);
+					}
 				} else if (posInLine < 4) {
 					ps.setString(posInLine + 1, line.startsWith(":") ? line.substring(1) : null);
 				}
