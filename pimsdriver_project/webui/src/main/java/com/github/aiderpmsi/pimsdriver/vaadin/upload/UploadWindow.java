@@ -103,7 +103,16 @@ public class UploadWindow extends Window {
         setContent(layout);
         
         // SETS ONE PENDING UPLOAD
-        StartedListener startedListener = (startedEvent) -> pendingUploads.offer(startedEvent);
+        StartedListener startedListener = (startedEvent) -> {
+        	synchronized(pendingUploads) {
+        		pendingUploads.offer(startedEvent);
+        		// CLEANS THE CORRESPONDING RECEIVER
+        		final FileUploader<?> fu = (FileUploader<?>) startedEvent.getUpload().getReceiver();
+        		fu.clean();
+        		updateFiness();
+        		updatePmsiDate();
+        	}
+        };
         
         // ADD RSF FILE PICKER
         rsfFilePicker = new Upload("RSF : ", new RsfFileUploader("rsf", this));
@@ -188,6 +197,8 @@ public class UploadWindow extends Window {
     	synchronized(pendingUploads) {
         	// 1 - SYNCHRONIZES PARSING RESULTS WITH RECEIVER, WAITING UPLOAD FINISH IF NEEDED
     		receiver.syncParsingResults();
+			// REMOVES THIS PENDING UPLOAD
+			pendingUploads.poll();
     		// 2 - GETS PARSING RESULTS
     		final ParsingResult pr = receiver.getParsingResults(); 
 			// 2 -VERIFY THAT THE UPLOAD SUCCEDED (1)
@@ -210,7 +221,7 @@ public class UploadWindow extends Window {
 	    			Notification.show("Finess RSF et RSS ne correspondent pas", Notification.Type.WARNING_MESSAGE);
 	    		}
 	    		// 5 - VERIFY THAT PMSI DATES MATCH
-	    		if (pmsiDate != null && !pmsiDate.equals(pr.datePmsi)) {
+	    		else if (pmsiDate != null && !pmsiDate.equals(pr.datePmsi)) {
 	    			// REINIT DOWNLOAD
 	    			remove(receiver, receiverProgressBar);
 	    			Notification.show("Date du pmsi RSF et RSS ne correspondent pas", Notification.Type.WARNING_MESSAGE);
@@ -220,8 +231,6 @@ public class UploadWindow extends Window {
 			updateFiness();
 			// UPDATES PMSI DATE
 			updatePmsiDate();
-			// REMOVES THIS PENDING UPLOAD
-			pendingUploads.poll();
     	}
     }
     
@@ -256,14 +265,18 @@ public class UploadWindow extends Window {
     private void remove(final FileUploader<?> receiver, final ProgressBar progressBar) {
     	// ONLY ACCEPT TO REMOVE SOMETHING IF PENDINGUPLOADS IS VOID
     	synchronized(pendingUploads) {
-    		if (pendingUploads.size() != 0) {
-    			Notification.show("Un fichier est en cours de transfert", Notification.Type.WARNING_MESSAGE);
-    		} else {
-    			((FileUploader<?>) rsfFilePicker.getReceiver()).clean();;
-    			progressBar.setValue(0F);
-    			updateFiness();
-    			updatePmsiDate();
+    		// SEE IF WE TRY TO REMOVE A PENDING UPLOAD
+    		for (StartedEvent startedEvent : pendingUploads) {
+    			if (startedEvent.getUpload().getReceiver().equals(receiver)) {
+        			Notification.show("Un fichier est en cours de transfert", Notification.Type.WARNING_MESSAGE);
+        			return;
+    			}
     		}
+    		// IF NO PENDING UPLOAD WAS FOUND FOR THIS ELEMENT, REMOVE IT
+    		receiver.clean();
+    		progressBar.setValue(0F);
+    		updateFiness();
+    		updatePmsiDate();
     	}
 	}
 
@@ -279,7 +292,7 @@ public class UploadWindow extends Window {
     			} else {
     				final Store store = (Store) ActionEncloser.execute((throwable) -> "EJB store not found",
     						() -> new InitialContext().lookup("java:global/business/pimsstore-0.0.1-SNAPSHOT/StoreBean!com.github.pjpo.pimsdriver.pimsstore.ejb.Store"));
-    				store.storePmsiFiles(
+    				final boolean successed = store.storePmsiFiles(
     						rsfFileUploader.getParsingResults().datePmsi,
     						rsfFileUploader.getParsingResults().finess,
     						rsfFileUploader.getParsingResults().version,
@@ -287,6 +300,8 @@ public class UploadWindow extends Window {
     						() -> rsfFileUploader.openResultReader(),
     							rssFileUploader.getParsingResults() != null ? () -> rssFileUploader.openResultReader() : null, 
     							rssFileUploader.getParsingResults() != null ? () -> rssFileUploader.openGroupsReader() : null);
+    				if (successed == true)
+    					this.close();
     			}
     		}
     	}
