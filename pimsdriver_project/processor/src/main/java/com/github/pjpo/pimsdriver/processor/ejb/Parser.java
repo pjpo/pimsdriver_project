@@ -11,23 +11,15 @@ public interface Parser {
 	 * Beware to call get on the resulting future before acessing ejb get
 	 * else you can get older values (from another parsing)
 	 * @param reader
-	 * @return
+	 * @return structure with informations regarding processing
 	 */
-	public Future<Collection<String>> process(Reader reader, Long startPmsiPosition);
+	public Future<ParsingResult> process(Reader reader, Long startPmsiPosition);
 
-	/**
-	 * Calls stateful bean removal
-	 */
-	public void remove();
-	
-	public void clean();
-	
-	public LocalDate getDatePmsi();
-	
-	public String getFiness();
-
-	public String getVersion();
-
-	public Long getEndPmsiPosition();
-
+	public static class ParsingResult {
+		public Collection<String> errors;
+		public LocalDate datePmsi;
+		public String finess;
+		public String version;
+		public Long endPmsiPosition;
+	}
 }

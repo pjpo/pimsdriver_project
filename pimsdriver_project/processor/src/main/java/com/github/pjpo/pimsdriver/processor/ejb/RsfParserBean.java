@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.LinkedList;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
@@ -42,9 +42,12 @@ public class RsfParserBean extends ParserBean implements RsfParser {
 	
 	@Override
 	@Asynchronous
-	public Future<Collection<String>> process(Reader reader, Long startPmsiPosition) {
-		return process(reader, startPmsiPosition, (errors) -> {
+	public Future<ParsingResult> process(Reader reader, Long startPmsiPosition) {
+		return process(reader, startPmsiPosition, () -> {
 			try (final Writer writer = Files.newBufferedWriter(rsfResult, Charset.forName("UTF-8"), StandardOpenOption.TRUNCATE_EXISTING)) {
+				// ERRORS
+				final LinkedList<String> errors = new LinkedList<>();
+				// PARSER
 				final SimpleParserFactory spf = new SimpleParserFactory();
 				// CREATES THE RSF LINE HANDLER
 				final RsfLineHandler handler = new RsfLineHandler(startPmsiPosition, writer);
@@ -58,6 +61,7 @@ public class RsfParserBean extends ParserBean implements RsfParser {
 				result.version = handler.getVersion();
 				result.endPmsiPosition = handler.getPmsiPosition();
 				result.datePmsi = handler.getPmsiDate();
+				result.errors = errors;
 				return result;
 			}
 		});
@@ -78,9 +82,4 @@ public class RsfParserBean extends ParserBean implements RsfParser {
 		preDestroy(() -> Files.delete(rsfResult));
 	}
 
-	@Override
-	public void clean() {
-		clean(() -> Files.write(rsfResult, new byte[0]));
-	}
-	
 }

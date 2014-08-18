@@ -6,8 +6,8 @@ import javax.ejb.Local;
 @Local
 public interface RssParser extends Parser {
 
-	Reader getGroupsReader();
+	public Reader getGroupsReader();
 
-	Reader getResultsReader();
+	public Reader getResultsReader();
 
 }

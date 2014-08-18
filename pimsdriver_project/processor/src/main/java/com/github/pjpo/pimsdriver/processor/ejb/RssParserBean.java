@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.LinkedList;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
@@ -50,12 +50,15 @@ public class RssParserBean extends ParserBean implements RssParser {
 	
 	@Override
 	@Asynchronous
-	public Future<Collection<String>> process(Reader reader, Long startPmsiPosition) {
-		return process(reader, startPmsiPosition, (errors) -> {
+	public Future<ParsingResult> process(Reader reader, Long startPmsiPosition) {
+		return process(reader, startPmsiPosition, () -> {
 			try (
 					final Writer resultsWriter = Files.newBufferedWriter(rssResult, Charset.forName("UTF-8"), StandardOpenOption.TRUNCATE_EXISTING);
 					final Writer groupsWriter = Files.newBufferedWriter(rssGroups, Charset.forName("UTF-8"), StandardOpenOption.TRUNCATE_EXISTING);
 					) {
+				// ERRORS
+				final LinkedList<String> errors = new LinkedList<>();
+				// PARSER
 				final SimpleParserFactory spf = new SimpleParserFactory();
 				// CREATES THE RSS LINE HANDLER
 				final RssLineHandler handler = new RssLineHandler(startPmsiPosition, resultsWriter);
@@ -71,6 +74,7 @@ public class RssParserBean extends ParserBean implements RssParser {
 				result.version = handler.getVersion();
 				result.endPmsiPosition = handler.getPmsiPosition();
 				result.datePmsi = handler.getPmsiDate();
+				result.errors = errors;
 				return result;
 			}
 		});
@@ -100,13 +104,4 @@ public class RssParserBean extends ParserBean implements RssParser {
 		});
 	}
 	
-	@Override
-	public void clean() {
-		clean(() -> {
-			Throwable e = ErrorCatcher.execute(() -> Files.write(rssResult, new byte[0]), null);
-			e = ErrorCatcher.execute(() -> Files.write(rssGroups, new byte[0]), e);
-			if (e != null) throw e;
-		});
-	}
-
 }

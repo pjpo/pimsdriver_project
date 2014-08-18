@@ -6,5 +6,5 @@ import javax.ejb.Local;
 @Local
 public interface RsfParser extends Parser {
 
-	Reader getReader();
+	public Reader getReader();
 }
