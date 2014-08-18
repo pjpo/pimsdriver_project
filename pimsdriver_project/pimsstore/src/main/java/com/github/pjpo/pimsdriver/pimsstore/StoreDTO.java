@@ -207,17 +207,13 @@ public class StoreDTO {
 					ps.addBatch();
 				}
 				if (posInLine == 0) {
-					if (line.startsWith(":")) {
-						ps.setLong(posInLine + 1, Long.sum(Long.parseLong(line.substring(1)),  pmsiOffset));
-					} else {
-						ps.setNull(posInLine + 1, Types.BIGINT);
-					}
-				} else if (posInLine < 4) {
+					ps.setLong(posInLine + 1, Long.sum(Long.parseLong(line),  pmsiOffset));
+				} else if (posInLine < 5) {
 					ps.setString(posInLine + 1, line.startsWith(":") ? line.substring(1) : null);
 				}
 				
 				// SENDS THE BATCH EACH 1000 ROWS
-				if (lineNb % 1000 == 0) {
+				if (lineNb != 0L && lineNb % 1000 == 0) {
 					ps.executeBatch();
 				}
 			}
