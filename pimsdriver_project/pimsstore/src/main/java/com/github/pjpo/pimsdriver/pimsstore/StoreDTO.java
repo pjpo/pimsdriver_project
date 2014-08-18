@@ -154,23 +154,15 @@ public class StoreDTO {
 					ps.addBatch();
 				}
 				if (posInLine == 0 || posInLine == 3) {
-					if (line.startsWith(":")) {
-						ps.setLong(posInLine + 1, Long.parseLong(line.substring(1)));
-					} else {
-						ps.setNull(posInLine + 1, Types.BIGINT);
-					}
-				} else if (posInLine == 1 || posInLine == 2) {
+					ps.setLong(posInLine + 1, Long.parseLong(line));
+				} else if (posInLine == 1) {
 					if (line.startsWith(":")) {
 						ps.setLong(posInLine + 1, Long.sum(Long.parseLong(line.substring(1)), pmsiOffset));
 					} else {
 						ps.setNull(posInLine + 1, Types.BIGINT);
 					}
-				} else if (posInLine == 4) {
-					if (line.startsWith(":")) {
-						ps.setString(posInLine + 1, line.substring(1));
-					} else {
-						ps.setNull(posInLine + 1, Types.VARCHAR);
-					}
+				} else if (posInLine == 2 || posInLine == 4) {
+					ps.setString(posInLine + 1, line);
 				}
 				
 				// SENDS THE BATCH EACH 1000 ROWS
