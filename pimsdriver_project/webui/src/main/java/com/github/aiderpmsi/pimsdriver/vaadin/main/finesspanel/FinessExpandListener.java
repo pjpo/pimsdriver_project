@@ -1,17 +1,14 @@
 package com.github.aiderpmsi.pimsdriver.vaadin.main.finesspanel;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.ServletContext;
-
-import com.github.aiderpmsi.pimsdriver.db.actions.ActionException;
-import com.github.aiderpmsi.pimsdriver.db.actions.NavigationActions;
-import com.github.aiderpmsi.pimsdriver.dto.NavigationDTO.YM;
-import com.github.aiderpmsi.pimsdriver.dto.model.UploadedPmsi;
+import javax.naming.InitialContext;
 import com.github.aiderpmsi.pimsdriver.vaadin.main.finesspanel.FinessComponent.FinessContainerModel;
 import com.github.aiderpmsi.pimsdriver.vaadin.utils.aop.ActionEncloser;
+import com.github.pjpo.pimsdriver.pimsstore.ejb.Navigation;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.data.util.filter.And;
@@ -21,22 +18,22 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.Tree.ExpandEvent;
 
+@SuppressWarnings("serial")
 public class FinessExpandListener implements Tree.ExpandListener {
-
-	private static final long serialVersionUID = 8913677773696542760L;
 
 	private final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/YYYY HH:mm:ss");
 	
 	private final HierarchicalContainer hc;
 	
 	private final FinessComponent fp;
+
+	private final Navigation navigation;
 	
-	private final ServletContext context;
-	
-	public FinessExpandListener(final HierarchicalContainer hc, final FinessComponent fp, final ServletContext context) {
+	public FinessExpandListener(final HierarchicalContainer hc, final FinessComponent fp) {
 		this.hc = hc;
 		this.fp = fp;
-		this.context = context;
+		this.navigation = (Navigation) ActionEncloser.execute((throwable) -> "EJB navigation not found",
+				() -> new InitialContext().lookup("java:global/business/pimsstore-0.0.1-SNAPSHOT/NavigationBean!com.github.pjpo.pimsdriver.pimsstore.ejb.Navigation"));
 	}
 	
 	@Override
@@ -44,89 +41,101 @@ public class FinessExpandListener implements Tree.ExpandListener {
 
 		// GETS CONTENT OF THIS ITEM
 		final Integer depth = (Integer) hc.getContainerProperty(event.getItemId(), "depth").getValue();
-		final UploadedPmsi.Status status = (UploadedPmsi.Status) hc.getContainerProperty(event.getItemId(), "status").getValue();
 		final String finess = (String) hc.getContainerProperty(event.getItemId(), "finess").getValue();
-		final Integer year = (Integer) hc.getContainerProperty(event.getItemId(), "year").getValue();
-		final Integer month = (Integer) hc.getContainerProperty(event.getItemId(), "month").getValue();
+		final LocalDate pmsiDate = (LocalDate) hc.getContainerProperty(event.getItemId(), "pmsiDate").getValue();
 		
-		// IF WE EXPAND A ROOT NODE
 		ActionEncloser.executeVoid( (exception) -> "Impossible de charger l'arbre des téléversements",
 				() -> {
 				switch (depth) {
 				case 0:
-					createFinessNodes(hc, event.getItemId(), status); break;
+					// OPEN A ROOT NODE : SHOW LIST OF FINESSES
+					createFinessNodes(hc, event.getItemId()); break;
 				case 1:
-					createYMNodes(hc, event.getItemId(), status, finess); break;
+					// OPEN A FINESS NODE : SHOW PMSI DATES
+					createPmsiDateNodes(hc, event.getItemId(), finess); break;
 				case 2:
-					createUploadsNodes(hc, event.getItemId(), status, finess, year, month); break;
+					// OPEN A PMSI DATE NODE : SHOW UPLOAD DATES
+					createUploadNodes(hc, event.getItemId(), finess, pmsiDate); break;
 				default:
-					throw new ActionException();
+					throw new Exception();
 				}});
 	}
 	
-	private void createFinessNodes(final HierarchicalContainer hc, final Object itemId, final UploadedPmsi.Status status) throws ActionException {
-		final FinessContainerModel containerModel = new FinessContainerModel(null, null, new Integer(1), null, null, status, null);
-		for (final String finess : new NavigationActions(context).getDistinctFinesses(status)) {
-			// CREATES THE NODE
-			containerModel.setCaption(finess);
-			containerModel.setFiness(finess);
-			final Object newItemId = fp.createContainerItemNode(hc, containerModel);
-			// ATTACHES THE NODE TO ITS PARENT
-			hc.setParent(newItemId, itemId);
-		}
-	}
-	
-	private void createYMNodes(HierarchicalContainer hc, Object itemId, UploadedPmsi.Status status, String finess) throws ActionException {
-		final FinessContainerModel containerModel = new FinessContainerModel(null, finess, new Integer(2), null, null, status, null);
-
-		final List<YM> yms = new NavigationActions(context).getYM(status, finess);
-		
-		if (yms.size() == 0) {
-			// IF THERE IS NO YM, IT MEANS THIS ITEM DOESN'T EXIST ANYMORE, REMOVE IT
-			fp.removeContainerItem(hc, itemId);
-			// SHOW THAT THIS ITEM DOESN'T EXIST ANYMORE
-			Notification.show("Le finess sélectionné n'existe plus", Notification.Type.WARNING_MESSAGE);
+	private void createFinessNodes(final HierarchicalContainer hc, final Object itemId) throws Exception {
+		final List<String> finesses = navigation.getFinesses();
+		if (finesses == null) {
+			throw new Exception();
 		} else {
-			// SOME UPLOADS EXIST, CREATE THE CORRESPONDING NODES
-			for (final YM ym : yms) {
-				// SETS THE ENTRY ELEMENTS
-				containerModel.setCaption(ym.year + " M" + ym.month);
-				containerModel.setYear(ym.year);
-				containerModel.setMonth(ym.month);
+			final FinessContainerModel containerModel = new FinessContainerModel(null, null, new Integer(1), null, null);
+			for (final String finess : navigation.getFinesses()) {
 				// CREATES THE NODE
+				containerModel.setCaption(finess);
+				containerModel.setFiness(finess);
 				final Object newItemId = fp.createContainerItemNode(hc, containerModel);
-				// ATTACHES THE NODE
+				// ATTACHES THE NODE TO ITS PARENT
 				hc.setParent(newItemId, itemId);
 			}
 		}
 	}
+	
+	private void createPmsiDateNodes(final HierarchicalContainer hc, final Object itemId, final String finess) throws Exception {
+		final List<LocalDate> pmsiDates = navigation.getPmsiDates(finess);
+		if (pmsiDates == null) {
+			throw new Exception();
+		} else {
+			final FinessContainerModel containerModel = new FinessContainerModel(null, finess, new Integer(2), null, null);
+			
+			if (pmsiDates.size() == 0) {
+				// IF THERE IS NO DATE FOR THIS FINESS, IT MEANS THIS ITEM DOESN'T EXIST ANYMORE, REMOVE IT
+				fp.removeContainerItem(hc, itemId);
+				
+				// SHOW THAT THIS ITEM DOESN'T EXIST ANYMORE
+				Notification.show("Le finess sélectionné n'existe plus", Notification.Type.WARNING_MESSAGE);
+			} else {
+				// SOME UPLOADS EXIST, CREATE THE CORRESPONDING NODES
+				for (final LocalDate pmsiDate : pmsiDates) {
+					// SETS THE ENTRY ELEMENTS
+					containerModel.setCaption(pmsiDate.getYear() + " M" + pmsiDate.getMonthValue());
+					containerModel.setPmsiDate(pmsiDate);
+					// CREATES THE NODE
+					final Object newItemId = fp.createContainerItemNode(hc, containerModel);
+					// ATTACHES THE NODE
+					hc.setParent(newItemId, itemId);
+				}
+			}
+		}
+	}
 
-	public void createUploadsNodes(HierarchicalContainer hc, Object itemId, UploadedPmsi.Status status, String finess, Integer year, Integer month) throws ActionException {
-		final FinessContainerModel containerModel = new FinessContainerModel(null, finess, new Integer(3), year, month, status, null);
+	public void createUploadNodes(final HierarchicalContainer hc, final Object itemId,
+			final String finess, final LocalDate pmsiDate) throws Exception {
+		final FinessContainerModel containerModel = new FinessContainerModel(null, finess, new Integer(3), pmsiDate, null);
 
-		// CREATE THE QUERY FILTER
+		// CREATES THE QUERY FILTER
 		final List<Filter> filters = new ArrayList<>(1);
 		filters.add(new And(
 				new Compare.Equal("plud_finess", finess),
-				new Compare.Equal("plud_processed", status),
-				new Compare.Equal("plud_year", year),
-				new Compare.Equal("plud_month", month)));
+				new Compare.Equal("plud_year", pmsiDate.getYear()),
+				new Compare.Equal("plud_month",pmsiDate.getMonth())));
 		
 		// CREATE THE QUERY ORDER BY
 		final List<OrderBy> orderBys = new ArrayList<>(1);
 		orderBys.add(new OrderBy("plud_dateenvoi", false));
 
 		// LOAD THE ITEMS
-		final List<UploadedPmsi> ups = new NavigationActions(context).getUploadedPmsi(filters, orderBys, null, null);
+		final List<Navigation.UploadedPmsi> ups = navigation.getUploadedPmsi(filters, orderBys, null, null);
 
+		// IF UPS IS NULL, EXCEPTION!
+		if (ups == null) {
+			throw new Exception();
+		}
 		// IF WE HAVE NO RESULT, IT MEANS THIS ITEM DOESN'T EXIST ANYMORE, REMOVE IT FROM THE TREE
-		if (ups.size() == 0) {
+		else if (ups.size() == 0) {
 			fp.removeContainerItem(hc, itemId);
 			// SHOW THAT THIS ITEM DOESN'T EXIST ANYMORE
 			Notification.show("L'élément sélectionné n'existe plus", Notification.Type.WARNING_MESSAGE);
 		} else {
 			// WE HAVE TO ADD THESE ITEMS TO THE TREE
-			for (final UploadedPmsi model : ups) {
+			for (final Navigation.UploadedPmsi model : ups) {
 				// SETS THE ENTRY ELEMENTS
 				containerModel.setCaption(sdf.format(model.dateenvoi));
 				containerModel.setModel(model);

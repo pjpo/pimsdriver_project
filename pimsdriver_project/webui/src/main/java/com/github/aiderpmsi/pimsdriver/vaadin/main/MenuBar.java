@@ -2,7 +2,6 @@ package com.github.aiderpmsi.pimsdriver.vaadin.main;
 
 import com.github.aiderpmsi.pimsdriver.dto.model.UploadedPmsi;
 import com.github.aiderpmsi.pimsdriver.dto.model.UploadedPmsi.Status;
-import com.github.aiderpmsi.pimsdriver.vaadin.pending.PendingPmsiWindow;
 import com.github.aiderpmsi.pimsdriver.vaadin.report.ReportWindow;
 import com.github.aiderpmsi.pimsdriver.vaadin.upload.UploadWindow;
 import com.vaadin.ui.UI;
@@ -41,10 +40,6 @@ public class MenuBar extends com.vaadin.ui.MenuBar {
 		files.addItem("Ajouter Pmsi", null,
 				(selectedItem) ->  UI.getCurrent().addWindow(new UploadWindow(rootWindow.getMainApplication().getServletContext())));
 
-		files.addSeparator();
-		files.addItem("Traitements Pmsi", null,
-				(selectedItem) ->  UI.getCurrent().addWindow(new PendingPmsiWindow(rootWindow.getMainApplication().getServletContext())));
-		
 		rapports = addItem("Rapports", null, null);
 		rapports.setVisible(false);
 		

@@ -2,10 +2,10 @@ package com.github.aiderpmsi.pimsdriver.vaadin.main.finesspanel;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.LocalDate;
 
-import com.github.aiderpmsi.pimsdriver.dto.model.UploadedPmsi;
-import com.github.aiderpmsi.pimsdriver.dto.model.UploadedPmsi.Status;
 import com.github.aiderpmsi.pimsdriver.vaadin.main.SplitPanel;
+import com.github.pjpo.pimsdriver.pimsstore.ejb.Navigation;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.ui.Tree;
 
@@ -22,20 +22,13 @@ public class FinessComponent extends Tree {
 		addContainerProperty("caption", String.class, "");
 		addContainerProperty("finess", String.class, null);
 		addContainerProperty("depth", Integer.class, null);
-		addContainerProperty("year", Integer.class, null);
-		addContainerProperty("month", Integer.class, null);
-		addContainerProperty("status", UploadedPmsi.Status.class, null);
-		addContainerProperty("model", UploadedPmsi.class, null);
-		// FILLS THE ROOT
-		for (UploadedPmsi.Status status : UploadedPmsi.Status.values()) {
-			if (status != UploadedPmsi.Status.pending) {
-				FinessContainerModel fcm = new FinessContainerModel(status.getLabel(), null, 0, null, null, status, null);
-				createContainerItemNode(this, fcm);
-			}
-		}
+		addContainerProperty("pmsidate", LocalDate.class, null);
+		addContainerProperty("model", Navigation.UploadedPmsi.class, null);
+		// CREATES ROOT NODE
+		createContainerItemNode(this, new FinessContainerModel("finess", null, null, null, null));
 	}};
 		
-	public FinessComponent(SplitPanel splitPanel) {
+	public FinessComponent(final SplitPanel splitPanel) {
 		super();
 		this.splitPanel = splitPanel;
 
@@ -45,20 +38,20 @@ public class FinessComponent extends Tree {
 		setImmediate(true); // MODIFICATIONS SHOULD BE SHOWED IMMEDIATELY
 		
 		// ADDS THE LISTENERS
-		ExpandListener el = new FinessExpandListener(hierarchicalContainer, this, getSplitPanel().getRootWindow().getMainApplication().getServletContext());
-		CollapseListener cl = new FinessCollapseListener(hierarchicalContainer);
-		ItemClickListener icl = new ItemClickListener(getSplitPanel().getRootWindow(), hierarchicalContainer);
+		final ExpandListener el = new FinessExpandListener(hierarchicalContainer, this);
+		final CollapseListener cl = new FinessCollapseListener(hierarchicalContainer);
+		final ItemClickListener icl = new ItemClickListener(getSplitPanel().getRootWindow(), hierarchicalContainer);
 
 		addExpandListener(el);
 		addCollapseListener(cl);
 		addItemClickListener(icl);
 
-		// ADD THE ACTION HANDLERS
-		addActionHandler(new DeleteHandler(hierarchicalContainer, this, getSplitPanel().getRootWindow().getMainApplication().getServletContext()));
+		// ADDS THE ACTION HANDLERS
+		addActionHandler(new DeleteHandler(hierarchicalContainer, this));
 	}
 
 	@SuppressWarnings("unchecked")
-	public final Object createContainerItemNode(HierarchicalContainer hc, FinessContainerModel fcm) {
+	public final Object createContainerItemNode(final HierarchicalContainer hc, final FinessContainerModel fcm) {
 		
 		final Object itemId = hc.addItem();
 		
@@ -85,19 +78,22 @@ public class FinessComponent extends Tree {
 		return splitPanel;
 	}
 	
-	public void removeContainerItem(HierarchicalContainer hc, Object itemId) {
+	public void removeContainerItem(final HierarchicalContainer hc, final Object itemId) {
 
 		// GETS THE PARENT
-		Object parentId = hc.getParent(itemId);
+		final Object parentId = hc.getParent(itemId);
 
 		// REMOVE THIS ITEM
 		hc.removeItemRecursively(itemId);
 
-		// RECURSIVELY REMOVE PARENT ITEM IF IT HAS NO CHILDREN (ANT IT IS NOT ROOT)
+		// RECURSIVELY REMOVE PARENT ITEM IF IT HAS NO CHILDREN (AND IT IS NOT ROOT)
 		if (parentId != null && !hc.isRoot(parentId)) {
 			if (hc.getChildren(parentId).size()  == 0) {
 				removeContainerItem(hc, parentId);
+				// CONTINUE RECURSION
 			}
+		} else {
+			// STOP RECURSION
 		}
 	}
 
@@ -105,19 +101,15 @@ public class FinessComponent extends Tree {
 		private String caption = "";
 		private String finess = null;
 		private Integer depth = null;
-		private Integer year = null;
-		private Integer month = null;
-		private UploadedPmsi.Status status = null;
-		private UploadedPmsi model = null;
-		public FinessContainerModel(String caption, String finess,
-				Integer depth, Integer year, Integer month, Status status,
-				UploadedPmsi model) {
+		private LocalDate pmsiDate = null;
+		private Navigation.UploadedPmsi model = null;
+		public FinessContainerModel(final String caption, final String finess,
+				final Integer depth, final LocalDate pmsiDate, 
+				final Navigation.UploadedPmsi model) {
 			this.caption = caption;
 			this.finess = finess;
 			this.depth = depth;
-			this.year = year;
-			this.month = month;
-			this.status = status;
+			this.pmsiDate = pmsiDate;
 			this.model = model;
 		}
 		public String getCaption() {
@@ -138,28 +130,16 @@ public class FinessComponent extends Tree {
 		public void setDepth(final Integer depth) {
 			this.depth = depth;
 		}
-		public Integer getYear() {
-			return year;
+		public LocalDate getPmsiDate() {
+			return pmsiDate;
 		}
-		public void setYear(final Integer year) {
-			this.year = year;
+		public void setPmsiDate(final LocalDate pmsiDate) {
+			this.pmsiDate = pmsiDate;
 		}
-		public Integer getMonth() {
-			return month;
-		}
-		public void setMonth(final Integer month) {
-			this.month = month;
-		}
-		public UploadedPmsi.Status getStatus() {
-			return status;
-		}
-		public void setStatus(final UploadedPmsi.Status status) {
-			this.status = status;
-		}
-		public UploadedPmsi getModel() {
+		public Navigation.UploadedPmsi getModel() {
 			return model;
 		}
-		public void setModel(final UploadedPmsi model) {
+		public void setModel(final Navigation.UploadedPmsi model) {
 			this.model = model;
 		}
 		

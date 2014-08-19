@@ -1,10 +1,10 @@
 package com.github.aiderpmsi.pimsdriver.vaadin.main.finesspanel;
 
-import javax.servlet.ServletContext;
+import javax.naming.InitialContext;
 
-import com.github.aiderpmsi.pimsdriver.db.actions.ActionException;
-import com.github.aiderpmsi.pimsdriver.db.actions.IOActions;
-import com.github.aiderpmsi.pimsdriver.dto.model.UploadedPmsi;
+import com.github.aiderpmsi.pimsdriver.vaadin.utils.aop.ActionEncloser;
+import com.github.pjpo.pimsdriver.pimsstore.ejb.Navigation;
+import com.github.pjpo.pimsdriver.pimsstore.ejb.Store;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.event.Action;
 import com.vaadin.ui.Notification;
@@ -21,12 +21,9 @@ public class DeleteHandler implements Action.Handler {
 	
 	private final FinessComponent fp;
 	
-	private final ServletContext context;
-	
-	public DeleteHandler(final HierarchicalContainer hc, final FinessComponent fp, final ServletContext context) {
+	public DeleteHandler(final HierarchicalContainer hc, final FinessComponent fp) {
 		this.hc = hc;
 		this.fp = fp;
-		this.context = context;
 	}
 	
 	public Action[] getActions(Object target, Object sender) {
@@ -46,19 +43,20 @@ public class DeleteHandler implements Action.Handler {
 			final Integer depth = (Integer) hc.getContainerProperty(target, "depth").getValue();
 			if (depth == 3) {
 				// GETS THE ASSOCIATED MODEL
-				UploadedPmsi model = (UploadedPmsi) hc.getContainerProperty(target, "model").getValue();
+				Navigation.UploadedPmsi model = (Navigation.UploadedPmsi) hc.getContainerProperty(target, "model").getValue();
 				// DELETES THE UPLOAD
-				IOActions ioActions = new IOActions(context);
-				try {
-					ioActions.deletePmsi(model);
+				final Store store = (Store) ActionEncloser.execute((throwable) -> "EJB store not found",
+						() -> new InitialContext().lookup("java:global/business/pimsstore-0.0.1-SNAPSHOT/StoreBean!com.github.pjpo.pimsdriver.pimsstore.ejb.Store"));
+				if (store.deletePmsiUpload(model.getRecordid()) == false) {
+					// ERROR WHILE DELETING UPLOAD
+					Notification.show("Erreur de suppression du pmsi", Notification.Type.WARNING_MESSAGE);
+				} else {
 					// GETS PARENT
 					Object parentId = hc.getParent(target);
 					// REMOVE THIS ITEM
 					fp.removeItem(target);
 					// REMOVE PARENT ITEMS IF NO CHILDREN...
 					removeRecursively(parentId);
-				} catch (ActionException e) {
-					Notification.show("Erreur de suppression du fichier", Notification.Type.WARNING_MESSAGE);
 				}
 			}
 		}
