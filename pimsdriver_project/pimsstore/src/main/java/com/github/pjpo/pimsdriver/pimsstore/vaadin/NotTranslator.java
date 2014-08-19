@@ -2,7 +2,6 @@ package com.github.pjpo.pimsdriver.pimsstore.vaadin;
 
 import java.util.List;
 
-import com.github.aiderpmsi.pimsdriver.db.vaadin.query.DBQueryBuilder;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.IsNull;
 import com.vaadin.data.util.filter.Not;
