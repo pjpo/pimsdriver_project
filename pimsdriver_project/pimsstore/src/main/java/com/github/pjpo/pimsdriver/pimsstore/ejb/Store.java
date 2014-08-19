@@ -17,6 +17,8 @@ public interface Store {
 			ReaderSupplier rssResultsReader,
 			ReaderSupplier rssGroupsReader);
 	
+	public Boolean deletePmsiUpload(Long uploadId);
+
 	@FunctionalInterface
 	public interface ReaderSupplier {
 		public Reader supply() throws Throwable;

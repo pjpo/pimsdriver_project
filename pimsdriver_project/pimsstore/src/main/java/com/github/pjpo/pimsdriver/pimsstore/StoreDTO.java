@@ -139,6 +139,19 @@ public class StoreDTO {
 		// STORES GROUPS
 		storeGroupsInTemp(con, groupsReader, pmsiOffset + 1L);
 	}
+	
+	public static void deletePmsiUpload(final Connection con, final Long uploadId) throws SQLException {
+		try (final PreparedStatement ps = con.prepareStatement(
+				"TRUNCATE TABLE pmel.pmel_" + uploadId + ", pmgr.pmgr_" + uploadId + ";"
+				+ "DELETE FROM public.plud_pmsiupload WHERE plud_id =  ?;"
+				+ "DROP TABLE pmgr.pmgr_" + uploadId + ";"
+				+ "DROP TABLE pmel.pmel_" + uploadId + ";")) {
+			// FILLS STATEMENT
+			ps.setLong(1, uploadId);;
+			ps.execute();
+		}
+	}
+	
 
 	private static void storePmsiInTemp(final Connection con, final Reader reader, final Long pmsiOffset) throws SQLException, NumberFormatException, IOException {
 		// STORES THE ELEMENTS

@@ -66,4 +66,14 @@ public class StoreBean implements Store {
 		}
 	}
 
+	public Boolean deletePmsiUpload(final Long uploadId) {
+		try (final Connection con = dataSourceProvider.getConnection()) {
+			DTOEncloser.executeVoid(con, () -> StoreDTO.deletePmsiUpload(con, uploadId));
+			return true;
+		} catch (Throwable e) {
+			LOGGER.log(Level.WARNING, "Error when deleting pmsi upload", e);
+			return false;
+		}
+	}
+	
 }
