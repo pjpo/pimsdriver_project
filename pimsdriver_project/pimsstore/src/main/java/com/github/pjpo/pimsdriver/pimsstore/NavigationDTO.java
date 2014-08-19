@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.github.pjpo.pimsdriver.pimsstore.ejb.Navigation.UploadedPmsi;
+import com.github.pjpo.pimsdriver.pimsstore.vaadin.DBQueryBuilder;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.sqlcontainer.query.OrderBy;
 
