@@ -12,6 +12,8 @@ import javax.ejb.Stateless;
 import com.github.pjpo.pimsdriver.datasource.DataSourceProvider;
 import com.github.pjpo.pimsdriver.pimsstore.NavigationDTO;
 import com.github.pjpo.pimsdriver.pimsstore.aop.DTOEncloser;
+import com.vaadin.data.Container.Filter;
+import com.vaadin.data.util.sqlcontainer.query.OrderBy;
 
 @Stateless
 public class NavigationBean implements Navigation {
@@ -36,6 +38,17 @@ public class NavigationBean implements Navigation {
 			return DTOEncloser.execute(con, () -> NavigationDTO.getPmsiDates(con, finess));
 		} catch (Throwable e) {
 			LOGGER.log(Level.WARNING, "Error when retrieving dates for finess " + finess, e);
+			return null;
+		}
+	}
+
+	@Override
+	public List<UploadedPmsi> getUploadedPmsi(List<Filter> filters,
+			List<OrderBy> orders, Integer first, Integer rows) {
+		try (final Connection con = dataSourceProvider.getConnection()) {
+			return DTOEncloser.execute(con, () -> NavigationDTO.getUploadedPmsi(con, filters, orders, first, rows));
+		} catch (Throwable e) {
+			LOGGER.log(Level.WARNING, "Error when retrieving uploaded pmsi", e);
 			return null;
 		}
 	}
