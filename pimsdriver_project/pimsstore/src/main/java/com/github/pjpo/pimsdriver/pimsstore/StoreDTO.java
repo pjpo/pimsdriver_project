@@ -222,33 +222,5 @@ public class StoreDTO {
 			
 		}
 	}
-	
-	public static void execute(final Connection con, final Executor executor) throws Throwable {
-		while (true) {
-			try {
-				executor.execute();
-				con.commit();
-				break;
-			} catch (final Throwable e) {
-				if (e instanceof SQLException && ((SQLException)e).getSQLState().equals("40001")) {
-					// WAS SERIALIZATION EXCEPTION, RETRY AND COMMIT
-				} else {
-					// WAS ERROR, ROLLBACK AND RETURN FALSE
-					try {
-						con.rollback();
-					} catch (final SQLException e1) {
-						e1.addSuppressed(e);
-						throw e1;
-					}
-					throw e;
-				}
-			}
-		}
-	}
-
-	@FunctionalInterface
-	public interface Executor {
-		public void execute() throws Throwable;
-	}
-	
+		
 }

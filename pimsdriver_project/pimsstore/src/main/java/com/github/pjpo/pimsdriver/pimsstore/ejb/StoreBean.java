@@ -6,13 +6,12 @@ import java.time.LocalDate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-
 import com.github.pjpo.pimsdriver.datasource.DataSourceProvider;
 import com.github.pjpo.pimsdriver.pimsstore.StoreDTO;
+import com.github.pjpo.pimsdriver.pimsstore.aop.DTOEncloser;
 
 @Stateless
 public class StoreBean implements Store {
@@ -33,7 +32,7 @@ public class StoreBean implements Store {
 			final ReaderSupplier rssGroupsReader) {
 
 		try (final Connection con = dataSourceProvider.getConnection()) {
-			StoreDTO.execute(con, () -> {
+			DTOEncloser.executeVoid(con, () -> {
 				// CREATES UPLOAD ENTRY
 				final Long entryId = StoreDTO.createUploadEntry(con, finess, pmsiDate, rsfVersion, rssVersion);
 				// CREATES TEMP TABLES
