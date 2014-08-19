@@ -4,17 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.logging.Logger;
 
 import com.github.pjpo.pimsdriver.pimsstore.ejb.Navigation;
-import com.github.pjpo.pimsdriver.pimsstore.vaadin.DBQueryBuilder;
-import com.vaadin.data.Container.Filter;
-import com.vaadin.data.util.sqlcontainer.query.OrderBy;
 
 public class ReportDTO {
 	
@@ -53,8 +46,10 @@ public class ReportDTO {
 				
 				while (rs.next()) {
 					overview.put(rs.getString(1), rs.getLong(2));
+				}
+	
+				return overview;
 			}
-			return overview;
 		}
 	}
 

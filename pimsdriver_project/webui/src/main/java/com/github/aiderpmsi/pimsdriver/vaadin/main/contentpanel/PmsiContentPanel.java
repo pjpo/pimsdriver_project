@@ -1,14 +1,15 @@
 package com.github.aiderpmsi.pimsdriver.vaadin.main.contentpanel;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map.Entry;
+
+import javax.naming.InitialContext;
 
 import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
 
 import com.github.aiderpmsi.pimsdriver.db.actions.NavigationActions;
-import com.github.aiderpmsi.pimsdriver.dto.NavigationDTO;
 import com.github.aiderpmsi.pimsdriver.dto.model.BaseRsfA;
 import com.github.aiderpmsi.pimsdriver.dto.model.UploadedPmsi;
 import com.github.aiderpmsi.pimsdriver.vaadin.main.MenuBar;
@@ -19,6 +20,8 @@ import com.github.aiderpmsi.pimsdriver.vaadin.utils.LazyColumnType;
 import com.github.aiderpmsi.pimsdriver.vaadin.utils.LazyTable;
 import com.github.aiderpmsi.pimsdriver.vaadin.utils.aop.ActionEncloser;
 import com.github.aiderpmsi.pimsdriver.vaadin.utils.aop.ActionHandlerEncloser;
+import com.github.pjpo.pimsdriver.pimsstore.ejb.Navigation;
+import com.github.pjpo.pimsdriver.pimsstore.ejb.Report;
 import com.vaadin.event.Action;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
@@ -54,25 +57,23 @@ public class PmsiContentPanel extends VerticalLayout {
 		this.splitPanel = splitPanel;
 	}
 	
-	public void setUpload(final UploadedPmsi model) {
+	public void setUpload(final Navigation.UploadedPmsi model) {
 		// FIRST, CLEANUP BODY AND HEADER
 		body.removeAllComponents();
 		header.removeAllComponents();
 
-		// IF STATUS IS NOT NULL AND SUCCESSED, ADD HEADER CONTENT
-		if (model != null && model.getStatus() != null && model.getStatus() == UploadedPmsi.Status.successed)  {
-			final NavigationActions.Overview overview = ActionEncloser.execute(
-					(exception) -> "Erreur lors de la récupération des éléments des rsf et rss ", 
-					() -> new NavigationActions(getSplitPanel().getRootWindow().getMainApplication().getServletContext()).getOverview(model));
-			
-			// CREATES THE CONFIG TABLE
-			final Object[][] headers = new Object[][] {
-					{"RSF", overview.rsf},
-					{overview.rss == null ? "Absence de RSS" : "RSS",
-							overview.rss == null ? new ArrayList<NavigationDTO.PmsiOverviewEntry>() : overview.rss}
-			};
-			
-			fillContentHeader(headers);
+		// IF STATUS IS NOT NULL, ADD HEADER CONTENT
+		if (model != null)  {
+			final Report report = (Report) ActionEncloser.execute((throwable) -> "EJB report not found",
+					() -> new InitialContext().lookup("java:global/business/pimsstore-0.0.1-SNAPSHOT/ReportBean!com.github.pjpo.pimsdriver.pimsstore.ejb.Report"));
+
+			// READ OVERVIEW FOR BOTH RSF AND RSS
+			final LinkedHashMap<String, LinkedHashMap<String, Long>> overviews = new LinkedHashMap<>();
+			overviews.put("RSF", report.readPmsiOverview(model, "rsfheader"));
+			overviews.put("RSS", report.readPmsiOverview(model, "rssheader"));
+
+			// CREATES THE HEADER INFORMATIONS
+			fillContentHeader(overviews);
 		}
 	}
 	
@@ -174,17 +175,17 @@ public class PmsiContentPanel extends VerticalLayout {
         return table;
 	}
 	
-	private void fillContentHeader(Object[][] configs) {
+	private void fillContentHeader(final LinkedHashMap<String, LinkedHashMap<String, Long>> overviews) {
 
-		for (final Object[] config : configs) {
-			@SuppressWarnings("unchecked")
-			final Layout layout = createContentHeader((String) config[0], (List<NavigationDTO.PmsiOverviewEntry>) config[1]);
+		for (final Entry<String, LinkedHashMap<String, Long>> overview : overviews.entrySet()) {
+			final Layout layout = createContentHeader(
+					overview.getKey(), overview.getValue());
 			header.addComponent(layout);
 		}
 
 	}
 	
-	private Layout createContentHeader(String header, List<NavigationDTO.PmsiOverviewEntry> entries) {
+	private Layout createContentHeader(final String header, final LinkedHashMap<String, Long> entries) {
 		final HorizontalLayout layout = new HorizontalLayout();
 		layout.addStyleName("pims-contentpanel-header-layout");
 
@@ -196,8 +197,8 @@ public class PmsiContentPanel extends VerticalLayout {
 		// CONTENT
 		final CssLayout contentLayout = new CssLayout();
 		contentLayout.addStyleName("pims-contentpanel-header-content-layout");
-		for (final NavigationDTO.PmsiOverviewEntry entry : entries) {
-			Label label = new Label(entry.lineName + " : " + Long.toString(entry.number));
+		for (final Entry<String, Long> entry : entries.entrySet()) {
+			Label label = new Label(entry.getKey() + " : " + Long.toString(entry.getValue()));
 			label.setSizeUndefined();
 			label.addStyleName("pims-contentpanel-header-content-label");
 			contentLayout.addComponent(label);
