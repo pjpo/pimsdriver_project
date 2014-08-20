@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.logging.Logger;
 
-import com.github.pjpo.pimsdriver.pimsstore.ejb.Navigation;
+import com.github.pjpo.pimsdriver.pimsstore.entities.UploadedPmsi;
 
 public class ReportDTO {
 	
@@ -15,7 +15,7 @@ public class ReportDTO {
 	private static final Logger LOGGER = Logger.getLogger(ReportDTO.class.toString());
 
 	public static LinkedHashMap<String, Long> readPmsiOverview(final Connection con,
-			final Navigation.UploadedPmsi model, final String headerName) throws SQLException {
+			final UploadedPmsi model, final String headerName) throws SQLException {
 
 		try (final PreparedStatement ps = con.prepareStatement(
 				"WITH RECURSIVE all_lines AS ( \n"
@@ -35,8 +35,8 @@ public class ReportDTO {
 
 			// FILLS THE STATEMENT
 			ps.setString(1, headerName);
-			ps.setLong(2, model.recordid);
-			ps.setLong(3, model.recordid);
+			ps.setLong(2, model.getRecordid());
+			ps.setLong(3, model.getRecordid());
 			ps.setString(4, headerName);
 
 			// EXECUTES THE QUERY AND FILLS THE OVERVIEW

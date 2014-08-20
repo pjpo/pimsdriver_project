@@ -11,6 +11,7 @@ import javax.ejb.Stateless;
 import com.github.pjpo.pimsdriver.datasource.DataSourceProvider;
 import com.github.pjpo.pimsdriver.pimsstore.ReportDTO;
 import com.github.pjpo.pimsdriver.pimsstore.aop.DTOEncloser;
+import com.github.pjpo.pimsdriver.pimsstore.entities.UploadedPmsi;
 
 @Stateless
 public class ReportBean implements Report {
@@ -22,7 +23,7 @@ public class ReportBean implements Report {
 
 	@Override
 	public LinkedHashMap<String, Long> readPmsiOverview(
-			Navigation.UploadedPmsi model, String headerName) {
+			UploadedPmsi model, String headerName) {
 		try (final Connection con = dataSourceProvider.getConnection()) {
 			return DTOEncloser.execute(con, () -> ReportDTO.readPmsiOverview(con, model, headerName));
 		} catch (Throwable e) {

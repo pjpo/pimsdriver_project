@@ -16,7 +16,6 @@ import javax.persistence.criteria.Root;
 
 import com.github.pjpo.commons.predicates.And;
 import com.github.pjpo.commons.predicates.Between;
-import com.github.pjpo.commons.predicates.Boundary;
 import com.github.pjpo.commons.predicates.Compare;
 import com.github.pjpo.commons.predicates.Filter;
 import com.github.pjpo.commons.predicates.IsNull;
@@ -24,7 +23,6 @@ import com.github.pjpo.commons.predicates.Like;
 import com.github.pjpo.commons.predicates.Not;
 import com.github.pjpo.commons.predicates.Or;
 import com.github.pjpo.commons.predicates.OrderBy;
-import com.github.pjpo.commons.predicates.Boundary.BoundaryType;
 import com.github.pjpo.commons.predicates.Compare.Type;
 
 public class JPAQueryBuilder {
@@ -127,7 +125,7 @@ public class JPAQueryBuilder {
 		return builder.isNull(expression);
 	}
 
-	private static <T, Y extends Comparable<? super Y>> Predicate convertCompare(final Compare<Y> compare, final CriteriaBuilder builder,
+	private static <T, Y extends Comparable<Y>> Predicate convertCompare(final Compare<Y> compare, final CriteriaBuilder builder,
 			final Root<T> root) {
 		final Y value = compare.getValue();
 		final Expression<? extends Y> expression = root.<Y>get(compare.getProperty());
@@ -146,10 +144,10 @@ public class JPAQueryBuilder {
 		}
 	}
 	
-	private static <T, Y extends Comparable<? super Y>> Predicate convertBetween(final Between<Y> between, final CriteriaBuilder builder,
+	private static <T, Y extends Comparable<Y>> Predicate convertBetween(final Between<Y> between, final CriteriaBuilder builder,
 			final Root<T> root) {
-		final Predicate startPredicate = convertGreaterBoundary(between.getStart(), between.getProperty(), builder, root);
-		final Predicate endPredicate = convertLessBoundary(between.getEnd(), between.getProperty(), builder, root);
+		final Predicate startPredicate = convertGreaterBoundary(between.getStart(), between.getStartBoundary(),between.getProperty(), builder, root);
+		final Predicate endPredicate = convertLessBoundary(between.getEnd(), between.getEndBoundary(), between.getProperty(), builder, root);
 		if (startPredicate == null)
 			return endPredicate;
 		else if (endPredicate == null) 
@@ -159,33 +157,31 @@ public class JPAQueryBuilder {
 		}
 	}
 
-	private static <T, Y extends Comparable<? super Y>> Predicate convertGreaterBoundary(final Boundary<Y> min, final String property,
+	private static <T, Y extends Comparable<Y>> Predicate convertGreaterBoundary(final Y min, final Between.BoundaryType boundary,
+			final String property,
 			final CriteriaBuilder builder, final Root<T> root) {
-		if (min == null || min.getValue() == null) {
+		if (min == null) {
 			return null;
-		} else if (min.getBoundaryType() == BoundaryType.INCLUDED) {
-			final Y value = min.getValue();
+		} else if (boundary == com.github.pjpo.commons.predicates.Between.BoundaryType.INCLUDED) {
 			final Expression<? extends Y> expression = root.<Y>get(property);
-			return builder.greaterThanOrEqualTo(expression, value);
+			return builder.greaterThanOrEqualTo(expression, min);
 		} else {
-			final Y value = min.getValue();
 			final Expression<? extends Y> expression = root.<Y>get(property);
-			return builder.greaterThan(expression, value);
+			return builder.greaterThan(expression, min);
 		} 
 	}
 
-	private static <T, Y extends Comparable<? super Y>> Predicate convertLessBoundary(final Boundary<Y> max, final String property,
-			final CriteriaBuilder builder, final Root<T> root) {
-		if (max == null || max.getValue() == null) {
+	private static <T, Y extends Comparable<? super Y>> Predicate convertLessBoundary(final Y max, final Between.BoundaryType boundary,
+	final String property,
+	final CriteriaBuilder builder, final Root<T> root) {
+		if (max == null) {
 			return null;
-		} else if (max.getBoundaryType() == BoundaryType.INCLUDED) {
-			final Y value = max.getValue();
+		} else if (boundary == com.github.pjpo.commons.predicates.Between.BoundaryType.INCLUDED) {
 			final Expression<? extends Y> expression = root.<Y>get(property);
-			return builder.lessThanOrEqualTo(expression, value);
+			return builder.lessThanOrEqualTo(expression, max);
 		} else {
-			final Y value = max.getValue();
 			final Expression<? extends Y> expression = root.<Y>get(property);
-			return builder.lessThan(expression, value);
+			return builder.lessThan(expression, max);
 		} 
 	}
 
