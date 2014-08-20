@@ -35,12 +35,12 @@ public class RootWindow extends CssLayout {
 	}
 	
 	public void setUploadSelected(final UploadedPmsi model) {
-		splitPanel.getContentPanel().setUpload(model);
+		splitPanel.getContentPanel().setUpload(null);
 		menuBar.setUpload(model);
 	}
 	
 	public void setMenuNavigationSelected(final UploadedPmsi model, final MenuBar.MenuBarSelected type) {
-		splitPanel.getContentPanel().show(type, model);
+		splitPanel.getContentPanel().show(type, null);
 	}
 
 	public Label getHeader() {

@@ -3,8 +3,8 @@ package com.github.aiderpmsi.pimsdriver.vaadin.main.finesspanel;
 import javax.naming.InitialContext;
 
 import com.github.aiderpmsi.pimsdriver.vaadin.utils.aop.ActionEncloser;
-import com.github.pjpo.pimsdriver.pimsstore.ejb.Navigation;
 import com.github.pjpo.pimsdriver.pimsstore.ejb.Store;
+import com.github.pjpo.pimsdriver.pimsstore.entities.UploadedPmsi;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.event.Action;
 import com.vaadin.ui.Notification;
@@ -43,7 +43,7 @@ public class DeleteHandler implements Action.Handler {
 			final Integer depth = (Integer) hc.getContainerProperty(target, "depth").getValue();
 			if (depth == 3) {
 				// GETS THE ASSOCIATED MODEL
-				Navigation.UploadedPmsi model = (Navigation.UploadedPmsi) hc.getContainerProperty(target, "model").getValue();
+				UploadedPmsi model = (UploadedPmsi) hc.getContainerProperty(target, "model").getValue();
 				// DELETES THE UPLOAD
 				final Store store = (Store) ActionEncloser.execute((throwable) -> "EJB store not found",
 						() -> new InitialContext().lookup("java:global/business/pimsstore-0.0.1-SNAPSHOT/StoreBean!com.github.pjpo.pimsdriver.pimsstore.ejb.Store"));

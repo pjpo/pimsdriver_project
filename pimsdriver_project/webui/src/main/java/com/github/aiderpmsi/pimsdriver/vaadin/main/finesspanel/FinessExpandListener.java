@@ -6,14 +6,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.InitialContext;
+
 import com.github.aiderpmsi.pimsdriver.vaadin.main.finesspanel.FinessComponent.FinessContainerModel;
 import com.github.aiderpmsi.pimsdriver.vaadin.utils.aop.ActionEncloser;
+import com.github.pjpo.commons.predicates.And;
+import com.github.pjpo.commons.predicates.Compare;
+import com.github.pjpo.commons.predicates.Filter;
+import com.github.pjpo.commons.predicates.Compare.Type;
+import com.github.pjpo.commons.predicates.OrderBy;
+import com.github.pjpo.commons.predicates.OrderBy.Order;
 import com.github.pjpo.pimsdriver.pimsstore.ejb.Navigation;
-import com.vaadin.data.Container.Filter;
+import com.github.pjpo.pimsdriver.pimsstore.entities.UploadedPmsi;
 import com.vaadin.data.util.HierarchicalContainer;
-import com.vaadin.data.util.filter.And;
-import com.vaadin.data.util.filter.Compare;
-import com.vaadin.data.util.sqlcontainer.query.OrderBy;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.Tree.ExpandEvent;
@@ -113,16 +117,16 @@ public class FinessExpandListener implements Tree.ExpandListener {
 		// CREATES THE QUERY FILTER
 		final List<Filter> filters = new ArrayList<>(1);
 		filters.add(new And(
-				new Compare.Equal("plud_finess", finess),
-				new Compare.Equal("plud_year", pmsiDate.getYear()),
-				new Compare.Equal("plud_month",pmsiDate.getMonth())));
+				new Compare<String>("finess", String.class, finess, Type.EQUAL),
+				new Compare<Integer>("pmsiYear", Integer.class, pmsiDate.getYear(), Type.EQUAL),
+				new Compare<Integer>("pmsiMonth", Integer.class, pmsiDate.getMonthValue(), Type.EQUAL)));
 		
 		// CREATE THE QUERY ORDER BY
 		final List<OrderBy> orderBys = new ArrayList<>(1);
-		orderBys.add(new OrderBy("plud_dateenvoi", false));
+		orderBys.add(new OrderBy("dateenvoi", Order.ASC));
 
 		// LOAD THE ITEMS
-		final List<Navigation.UploadedPmsi> ups = navigation.getUploadedPmsi(filters, orderBys, null, null);
+		final List<UploadedPmsi> ups = navigation.getUploadedPmsi(filters, orderBys, null, null);
 
 		// IF UPS IS NULL, EXCEPTION!
 		if (ups == null) {
@@ -135,7 +139,7 @@ public class FinessExpandListener implements Tree.ExpandListener {
 			Notification.show("L'élément sélectionné n'existe plus", Notification.Type.WARNING_MESSAGE);
 		} else {
 			// WE HAVE TO ADD THESE ITEMS TO THE TREE
-			for (final Navigation.UploadedPmsi model : ups) {
+			for (final UploadedPmsi model : ups) {
 				// SETS THE ENTRY ELEMENTS
 				containerModel.setCaption(sdf.format(model.dateenvoi));
 				containerModel.setModel(model);

@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 import java.time.LocalDate;
 
 import com.github.aiderpmsi.pimsdriver.vaadin.main.SplitPanel;
-import com.github.pjpo.pimsdriver.pimsstore.ejb.Navigation;
+import com.github.pjpo.pimsdriver.pimsstore.entities.UploadedPmsi;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.ui.Tree;
 
@@ -23,7 +23,7 @@ public class FinessComponent extends Tree {
 		addContainerProperty("finess", String.class, null);
 		addContainerProperty("depth", Integer.class, null);
 		addContainerProperty("pmsidate", LocalDate.class, null);
-		addContainerProperty("model", Navigation.UploadedPmsi.class, null);
+		addContainerProperty("model", UploadedPmsi.class, null);
 		// CREATES ROOT NODE
 		createContainerItemNode(this, new FinessContainerModel("finess", null, null, null, null));
 	}};
@@ -102,10 +102,10 @@ public class FinessComponent extends Tree {
 		private String finess = null;
 		private Integer depth = null;
 		private LocalDate pmsiDate = null;
-		private Navigation.UploadedPmsi model = null;
+		private UploadedPmsi model = null;
 		public FinessContainerModel(final String caption, final String finess,
 				final Integer depth, final LocalDate pmsiDate, 
-				final Navigation.UploadedPmsi model) {
+				final UploadedPmsi model) {
 			this.caption = caption;
 			this.finess = finess;
 			this.depth = depth;
@@ -136,10 +136,10 @@ public class FinessComponent extends Tree {
 		public void setPmsiDate(final LocalDate pmsiDate) {
 			this.pmsiDate = pmsiDate;
 		}
-		public Navigation.UploadedPmsi getModel() {
+		public UploadedPmsi getModel() {
 			return model;
 		}
-		public void setModel(final Navigation.UploadedPmsi model) {
+		public void setModel(final UploadedPmsi model) {
 			this.model = model;
 		}
 		
