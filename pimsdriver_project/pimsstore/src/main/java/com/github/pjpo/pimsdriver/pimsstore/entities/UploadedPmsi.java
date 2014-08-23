@@ -2,7 +2,6 @@ package com.github.pjpo.pimsdriver.pimsstore.entities;
 
 import java.time.LocalDate;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -24,7 +23,7 @@ import javax.xml.bind.annotation.XmlElement;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @Entity
-@Table(name = "plud_pmsiupload")
+@Table(schema="public", name = "plud_pmsiupload")
 public class UploadedPmsi {
 
 	/** Primary key */
@@ -50,13 +49,13 @@ public class UploadedPmsi {
 	@XmlElement
 	@Column(name = "plud_dateenvoi")
 	@Temporal(TemporalType.TIMESTAMP)
-	public Date dateenvoi;
+	private Date dateenvoi;
 			
 	/** Attributes */
 	@XmlElement
 	@Column(name = "plud_arguments")
 	@Convert(converter = HstoreConverter.class)
-	public Map<String, String> attributes;
+	private Map<String, String> attributes;
 
 	public Long getRecordid() {
 		return recordid;

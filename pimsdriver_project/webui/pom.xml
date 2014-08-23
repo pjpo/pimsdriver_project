@@ -134,6 +134,13 @@
 			<artifactId>ioutils</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+
+		<dependency>
+			<groupId>com.github.pjpo.commons</groupId>
+			<artifactId>sqlutils</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

@@ -22,28 +22,6 @@ import com.vaadin.data.util.sqlcontainer.query.OrderBy;
 
 public class SejoursQueryFactory implements QueryFactory {
 	
-	private Object[][] mappings = new Object[][] {
-			{"pmel_id", "smva.pmel_id"},
-			{"pmel_root", "smva.pmel_root"},
-			{"pmel_position", "smva.pmel_position"},
-			{"pmel_line", "smva.pmel_line"},
-			{"numrss", "trim(smva.numrss)"},
-			{"ghm", "trim(smva.numcmd) || trim(smva.numghm)"},
-			{"ghmcorrige", "pmgr.pmgr_racine || pmgr.pmgr_modalite || pmgr.pmgr_gravite || pmgr.pmgr_erreur"},
-			{"numlocalsejour", "trim(smva.numlocalsejour)"},
-			{"numrum", "trim(smva.numrum)"},
-			{"numunitemedicale", "trim(smva.numunitemedicale)"},
-			{"formatteddateentree", "cast_to_date(smva.dateentree, NULL)"},
-			{"formatteddatesortie", "cast_to_date(smva.datesortie, NULL)"},
-			{"nbseances", "cast_to_int(smva.nbseances, NULL)"},
-			{"dp", "trim(smva.dp)"},
-			{"dr", "trim(smva.dr)"}
-	};
-
-	private final SejoursQueryInit sejoursQueryInit;
-	
-	private final DBQueryMapping mapping;
-	
 	public SejoursQueryFactory(final Long pmel_root, final ServletContext context) {
 		// CREATES THE QUERY INITIALIZER
 		sejoursQueryInit = new SejoursQueryInit(pmel_root, context);
@@ -53,7 +31,8 @@ public class SejoursQueryFactory implements QueryFactory {
 	
 	@Override
 	public Query constructQuery(QueryDefinition qd) {
-		return new BaseQuery<>(sejoursQueryInit, mapping, qd);
+		qd.getFilters();
+		qd.getSortablePropertyIds();qd.get
 	}
 
 	public class SejoursQueryInit implements BaseQueryInit<BaseRssMain> {
