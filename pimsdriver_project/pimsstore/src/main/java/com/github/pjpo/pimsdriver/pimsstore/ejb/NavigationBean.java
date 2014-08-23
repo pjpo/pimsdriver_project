@@ -24,7 +24,7 @@ public class NavigationBean implements Navigation {
 
 	private static final Logger LOGGER = Logger.getLogger(NavigationBean.class.toString());
 
-	@PersistenceContext
+	@PersistenceContext(unitName="pimsdriver")
 	private EntityManager em;
 	 
 	@EJB(lookup="java:global/business/datasource-0.0.1-SNAPSHOT/DataSourceProviderBean!com.github.pjpo.pimsdriver.datasource.DataSourceProvider")

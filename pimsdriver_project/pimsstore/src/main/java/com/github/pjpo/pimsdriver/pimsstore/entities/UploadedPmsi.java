@@ -3,12 +3,15 @@ package com.github.pjpo.pimsdriver.pimsstore.entities;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -46,13 +49,14 @@ public class UploadedPmsi {
 	/** Date of data upload */
 	@XmlElement
 	@Column(name = "plud_dateenvoi")
+	@Temporal(TemporalType.TIMESTAMP)
 	public Date dateenvoi;
 			
 	/** Attributes */
 	@XmlElement
 	@Column(name = "plud_arguments")
 	@Convert(converter = HstoreConverter.class)
-	public HashMap<String, String> attributes;
+	public Map<String, String> attributes;
 
 	public Long getRecordid() {
 		return recordid;
@@ -94,11 +98,11 @@ public class UploadedPmsi {
 		this.dateenvoi = dateenvoi;
 	}
 
-	public HashMap<String, String> getAttributes() {
+	public Map<String, String> getAttributes() {
 		return attributes;
 	}
 
-	public void setAttributes(HashMap<String, String> attributes) {
+	public void setAttributes(Map<String, String> attributes) {
 		this.attributes = attributes;
 	}
 

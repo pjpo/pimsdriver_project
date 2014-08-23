@@ -22,10 +22,10 @@ public class FinessComponent extends Tree {
 		addContainerProperty("caption", String.class, "");
 		addContainerProperty("finess", String.class, null);
 		addContainerProperty("depth", Integer.class, null);
-		addContainerProperty("pmsidate", LocalDate.class, null);
+		addContainerProperty("pmsiDate", LocalDate.class, null);
 		addContainerProperty("model", UploadedPmsi.class, null);
 		// CREATES ROOT NODE
-		createContainerItemNode(this, new FinessContainerModel("finess", null, null, null, null));
+		createContainerItemNode(this, new FinessContainerModel("finess", null, new Integer(0), null, null));
 	}};
 		
 	public FinessComponent(final SplitPanel splitPanel) {

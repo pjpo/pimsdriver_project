@@ -18,6 +18,5 @@ public interface Navigation {
 	
 	public List<UploadedPmsi> getUploadedPmsi(final List<Filter> filters, final List<OrderBy> orders,
 			final Integer first, final Integer rows);
-	
 
 }
