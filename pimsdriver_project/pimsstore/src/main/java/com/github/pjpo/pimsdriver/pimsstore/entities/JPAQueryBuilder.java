@@ -59,6 +59,23 @@ public class JPAQueryBuilder {
 		 return allQuery.getResultList();
 	}
 
+	public static <T> Long getCount(final EntityManager em, final Class<T> clazz,
+			final List<Filter> filters) {
+
+		final CriteriaBuilder builder = em.getCriteriaBuilder();
+		 
+		 // SELECT FROM UPLOADEDPMSI
+		 final CriteriaQuery<Long> query = builder.createQuery(Long.class);
+		 final Root<T> uploadedPmsiFrom = query.from(clazz);
+		 query.select(builder.count(uploadedPmsiFrom));
+		 
+		 // WHERE PREDICATES
+		 final Predicate predicate = convertPredicateAnd(filters, builder, uploadedPmsiFrom);
+		 query.where(predicate);
+	    
+		 return em.createQuery(query).getSingleResult();
+	}
+
 	private static <T> Order convertOrderBy(final OrderBy orderBy, final CriteriaBuilder builder, final Root<T> root) {
 		if (orderBy.getOrder() == com.github.pjpo.commons.predicates.OrderBy.Order.ASC) {
 			return builder.asc(root.get(orderBy.getProperty()));

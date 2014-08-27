@@ -22,11 +22,11 @@ import com.vaadin.data.util.filter.SimpleStringFilter;
 
 public class VaadinToCommonsPredicates {
 
-	public List<Filter> convertFilters(com.vaadin.data.Container.Filter... vaadinFilters) {
+	public static List<Filter> convertFilters(com.vaadin.data.Container.Filter... vaadinFilters) {
 		return convertFilters(Arrays.asList(vaadinFilters));
 	}
 
-	public List<Filter> convertFilters(Collection<com.vaadin.data.Container.Filter> vaadinFilters) {
+	public static List<Filter> convertFilters(Collection<com.vaadin.data.Container.Filter> vaadinFilters) {
 		final ArrayList<Filter> commonsFilters = new ArrayList<Filter>(vaadinFilters.size());
 		for (com.vaadin.data.Container.Filter vaadinFilter : vaadinFilters) {
 			Filter commonsFilter = convertFilter(vaadinFilter);
@@ -38,7 +38,7 @@ public class VaadinToCommonsPredicates {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Filter convertFilter(com.vaadin.data.Container.Filter vaadinFilter) {
+	private static Filter convertFilter(com.vaadin.data.Container.Filter vaadinFilter) {
 		if (vaadinFilter instanceof com.vaadin.data.util.filter.And) {
 			com.vaadin.data.util.filter.And and = (com.vaadin.data.util.filter.And) vaadinFilter;
 			return new And(convertFilters(and.getFilters()).toArray(new Filter[and.getFilters().size()]));
@@ -73,11 +73,11 @@ public class VaadinToCommonsPredicates {
 		}
 	}
 	
-	public List<OrderBy> convertOrderBys(Object[] vaadinOrders, boolean... ascendings) {
+	public static List<OrderBy> convertOrderBys(Object[] vaadinOrders, boolean... ascendings) {
 		return convertOrderBys(Arrays.asList(vaadinOrders), ascendings);
 	}
 	
-	public List<OrderBy> convertOrderBys(Collection<Object> vaadinOrders, boolean[] ascendings) {
+	public static List<OrderBy> convertOrderBys(Collection<Object> vaadinOrders, boolean[] ascendings) {
 		int i = 0;
 		final List<OrderBy> orders = new ArrayList<OrderBy>(vaadinOrders.size());
 		for (Object vaadinOrder : vaadinOrders) {

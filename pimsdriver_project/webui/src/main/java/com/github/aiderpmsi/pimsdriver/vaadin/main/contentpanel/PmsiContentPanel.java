@@ -31,10 +31,8 @@ import com.vaadin.ui.Table.Align;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
+@SuppressWarnings("serial")
 public class PmsiContentPanel extends VerticalLayout {
-
-	/** Generated serial id */
-	private static final long serialVersionUID = 9173237483341882407L;
 
 	/** header layout */
 	private final VerticalLayout header = new VerticalLayout();
@@ -44,6 +42,9 @@ public class PmsiContentPanel extends VerticalLayout {
 	
 	private final SplitPanel splitPanel;
 	
+	private final Report report = (Report) ActionEncloser.execute((throwable) -> "EJB report not found",
+			() -> new InitialContext().lookup("java:global/business/pimsstore-0.0.1-SNAPSHOT/ReportBean!com.github.pjpo.pimsdriver.pimsstore.ejb.Report"));
+
 	public PmsiContentPanel(SplitPanel splitPanel) {
 		super();
 		addStyleName("pims-contentpanel");
@@ -63,8 +64,6 @@ public class PmsiContentPanel extends VerticalLayout {
 
 		// IF STATUS IS NOT NULL, ADD HEADER CONTENT
 		if (model != null)  {
-			final Report report = (Report) ActionEncloser.execute((throwable) -> "EJB report not found",
-					() -> new InitialContext().lookup("java:global/business/pimsstore-0.0.1-SNAPSHOT/ReportBean!com.github.pjpo.pimsdriver.pimsstore.ejb.Report"));
 
 			// READ OVERVIEW FOR BOTH RSF AND RSS
 			final LinkedHashMap<String, LinkedHashMap<String, Long>> overviews = new LinkedHashMap<>();
@@ -95,7 +94,7 @@ public class PmsiContentPanel extends VerticalLayout {
         // RSS MAIN CONTAINER
         final LazyQueryContainer datasContainer = new LazyQueryContainer(
         		new LazyQueryDefinition(false, 1000, "pmel_id"),
-        		new SejoursQueryFactory(model.getRecordid(), getSplitPanel().getRootWindow().getMainApplication().getServletContext()));
+        		new SejoursQueryFactory(model.getRecordid(), report));
 		
         // COLUMNS DEFINITIONS
         final LazyColumnType[] cols = new LazyColumnType[] {

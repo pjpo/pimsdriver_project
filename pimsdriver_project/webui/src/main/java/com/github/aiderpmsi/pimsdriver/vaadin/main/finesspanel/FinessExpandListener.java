@@ -117,9 +117,9 @@ public class FinessExpandListener implements Tree.ExpandListener {
 		// CREATES THE QUERY FILTER
 		final List<Filter> filters = new ArrayList<>(1);
 		filters.add(new And(
-				new Compare<String>("finess", String.class, finess, Type.EQUAL),
-				new Compare<Integer>("pmsiYear", Integer.class, pmsiDate.getYear(), Type.EQUAL),
-				new Compare<Integer>("pmsiMonth", Integer.class, pmsiDate.getMonthValue(), Type.EQUAL)));
+				new Compare<String>("finess", finess, Type.EQUAL),
+				new Compare<Integer>("pmsiYear", pmsiDate.getYear(), Type.EQUAL),
+				new Compare<Integer>("pmsiMonth", pmsiDate.getMonthValue(), Type.EQUAL)));
 		
 		// CREATE THE QUERY ORDER BY
 		final List<OrderBy> orderBys = new ArrayList<>(1);
@@ -141,7 +141,7 @@ public class FinessExpandListener implements Tree.ExpandListener {
 			// WE HAVE TO ADD THESE ITEMS TO THE TREE
 			for (final UploadedPmsi model : ups) {
 				// SETS THE ENTRY ELEMENTS
-				containerModel.setCaption(sdf.format(model.dateenvoi));
+				containerModel.setCaption(sdf.format(model.getDateenvoi()));
 				containerModel.setModel(model);
 				// CREATES THE NODE
 				final Object newItemId = fp.createContainerItemNode(hc, containerModel);
