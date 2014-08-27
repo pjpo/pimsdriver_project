@@ -21,6 +21,7 @@ import com.github.pjpo.pimsdriver.datasource.DataSourceProvider;
 import com.github.pjpo.pimsdriver.pimsstore.ReportDTO;
 import com.github.pjpo.pimsdriver.pimsstore.aop.DTOEncloser;
 import com.github.pjpo.pimsdriver.pimsstore.entities.JPAQueryBuilder;
+import com.github.pjpo.pimsdriver.pimsstore.entities.RsfA;
 import com.github.pjpo.pimsdriver.pimsstore.entities.RssMain;
 import com.github.pjpo.pimsdriver.pimsstore.entities.UploadedPmsi;
 
@@ -61,4 +62,18 @@ public class ReportBean implements Report {
 		return JPAQueryBuilder.getCount(em, RssMain.class, filters);
 	}
 
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public List<RsfA> getRsfAList(
+			List<Filter> filters, List<OrderBy> orders,
+			Integer first, Integer rows) {
+		return JPAQueryBuilder.getList(em, RsfA.class, filters, orders, first, rows);
+	}
+
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public Long getRsfASize(List<Filter> filters) {
+		return JPAQueryBuilder.getCount(em, RsfA.class, filters);
+	}
+	
 }

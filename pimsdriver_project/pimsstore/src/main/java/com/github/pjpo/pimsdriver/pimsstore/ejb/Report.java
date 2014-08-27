@@ -7,6 +7,7 @@ import javax.ejb.Local;
 
 import com.github.pjpo.commons.predicates.Filter;
 import com.github.pjpo.commons.predicates.OrderBy;
+import com.github.pjpo.pimsdriver.pimsstore.entities.RsfA;
 import com.github.pjpo.pimsdriver.pimsstore.entities.RssMain;
 import com.github.pjpo.pimsdriver.pimsstore.entities.UploadedPmsi;
 
@@ -22,4 +23,10 @@ public interface Report {
 
 	public Long getRssMainSize(List<Filter> filters);
 	
+	public List<RsfA> getRsfAList(
+			List<Filter> filters, List<OrderBy> orders,
+			Integer first, Integer rows);
+
+	public Long getRsfASize(List<Filter> filters);
+
 }
