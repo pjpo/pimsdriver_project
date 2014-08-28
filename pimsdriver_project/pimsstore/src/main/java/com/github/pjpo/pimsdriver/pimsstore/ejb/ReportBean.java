@@ -14,6 +14,11 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import com.github.pjpo.commons.predicates.Filter;
 import com.github.pjpo.commons.predicates.OrderBy;
@@ -74,6 +79,33 @@ public class ReportBean implements Report {
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public Long getRsfASize(List<Filter> filters) {
 		return JPAQueryBuilder.getCount(em, RsfA.class, filters);
+	}
+
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public RsfA getRsfASummary(List<Filter> filters) {
+		
+		final CriteriaBuilder builder = em.getCriteriaBuilder();
+		 
+		 // SELECT FROM RSFA
+		 final CriteriaQuery<Object> query = builder.createQuery();
+		 final Root<RsfA> rsfARoot = query.from(RsfA.class);
+		 
+		 // SUMS
+		 Expression<?> sumTotalfacturehonoraire = builder.sum(rsfARoot.get("totalfacturehonoraire"));
+		 Expression<?> sumTotalfactureph = builder.sum(rsfARoot.get("totalfactureph"));
+
+		 CriteriaQuery<Object> select = query.multiselect(sumTotalfacturehonoraire, sumTotalfactureph);
+		 
+		 // WHERE PREDICATES
+		 final Predicate predicate = JPAQueryBuilder.convertPredicateAnd(filters, builder, rsfARoot);
+		 query.where(predicate);
+	    
+		 // GETS RESULTS
+		 Object result = em.createQuery(select).getSingleResult();
+		 
+		 return null;
+
 	}
 	
 }

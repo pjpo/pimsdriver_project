@@ -76,7 +76,7 @@ public class JPAQueryBuilder {
 		 return em.createQuery(query).getSingleResult();
 	}
 
-	private static <T> Order convertOrderBy(final OrderBy orderBy, final CriteriaBuilder builder, final Root<T> root) {
+	public static <T> Order convertOrderBy(final OrderBy orderBy, final CriteriaBuilder builder, final Root<T> root) {
 		if (orderBy.getOrder() == com.github.pjpo.commons.predicates.OrderBy.Order.ASC) {
 			return builder.asc(root.get(orderBy.getProperty()));
 		} else  {
@@ -84,7 +84,7 @@ public class JPAQueryBuilder {
 		}
 	}
 	
-	private static <T> Predicate convertPredicateAnd(final Collection<Filter> filters, final CriteriaBuilder builder, final Root<T> root) {
+	public static <T> Predicate convertPredicateAnd(final Collection<Filter> filters, final CriteriaBuilder builder, final Root<T> root) {
 		final LinkedList<Predicate> predicates = convertToPredicateList(filters, builder, root);
 		return builder.and(predicates.toArray(new Predicate[predicates.size()]));
 	}

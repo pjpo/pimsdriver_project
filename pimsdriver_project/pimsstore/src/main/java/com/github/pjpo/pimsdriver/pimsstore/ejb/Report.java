@@ -29,4 +29,6 @@ public interface Report {
 
 	public Long getRsfASize(List<Filter> filters);
 
+	public RsfA getRsfASummary(List<Filter> filters);
+
 }
