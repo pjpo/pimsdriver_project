@@ -1,9 +1,8 @@
 package com.github.aiderpmsi.pimsdriver.vaadin.main;
 
-import com.github.aiderpmsi.pimsdriver.dto.model.UploadedPmsi;
-import com.github.aiderpmsi.pimsdriver.dto.model.UploadedPmsi.Status;
 import com.github.aiderpmsi.pimsdriver.vaadin.report.ReportWindow;
 import com.github.aiderpmsi.pimsdriver.vaadin.upload.UploadWindow;
+import com.github.pjpo.pimsdriver.pimsstore.entities.UploadedPmsi;
 import com.vaadin.ui.UI;
 
 public class MenuBar extends com.vaadin.ui.MenuBar {
@@ -53,7 +52,7 @@ public class MenuBar extends com.vaadin.ui.MenuBar {
 		rapports.removeChildren();
 		
 		// IF NEW MODEL, CREATE THE LINKS
-		if (model != null && model.getStatus() != null && model.getStatus() == Status.successed) {
+		if (model != null) {
 			navigations.addItem("Factures", null,
 					(selectedItem) -> rootWindow.setMenuNavigationSelected(model, MenuBarSelected.factures));
 			navigations.addItem("Séjours", null,

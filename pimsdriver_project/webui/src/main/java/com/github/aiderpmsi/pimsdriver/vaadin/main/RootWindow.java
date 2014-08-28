@@ -1,6 +1,6 @@
 package com.github.aiderpmsi.pimsdriver.vaadin.main;
 
-import com.github.aiderpmsi.pimsdriver.dto.model.UploadedPmsi;
+import com.github.pjpo.pimsdriver.pimsstore.entities.UploadedPmsi;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Label;
 

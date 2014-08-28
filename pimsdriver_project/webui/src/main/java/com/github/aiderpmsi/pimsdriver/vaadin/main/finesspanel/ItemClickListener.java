@@ -1,7 +1,7 @@
 package com.github.aiderpmsi.pimsdriver.vaadin.main.finesspanel;
 
-import com.github.aiderpmsi.pimsdriver.dto.model.UploadedPmsi;
 import com.github.aiderpmsi.pimsdriver.vaadin.main.RootWindow;
+import com.github.pjpo.pimsdriver.pimsstore.entities.UploadedPmsi;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.event.ItemClickEvent;
 

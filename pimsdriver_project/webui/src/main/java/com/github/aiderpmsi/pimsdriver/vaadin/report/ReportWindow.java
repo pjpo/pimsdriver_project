@@ -3,7 +3,7 @@ package com.github.aiderpmsi.pimsdriver.vaadin.report;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.github.aiderpmsi.pimsdriver.dto.model.UploadedPmsi;
+import com.github.pjpo.pimsdriver.pimsstore.entities.UploadedPmsi;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Link;
@@ -23,14 +23,14 @@ public class ReportWindow extends Window {
 			
 			switch (this) {
 			case factures:
-				links.add(new Link("Factures triées selon numéro de facture", new ExternalResource("rest/report/report/" + pmsi.recordid + "/factures.pdf?order=facture")));
-				links.getLast().setTargetName("facture_" + pmsi.finess + ".pdf");
-				links.add(new Link("Factures ordonnées selon ordre du rsf", new ExternalResource("rest/report/report/" + pmsi.recordid + "/factures.pdf?order=rsf")));
-				links.getLast().setTargetName("facture_" + pmsi.finess + ".pdf");
+				links.add(new Link("Factures triées selon numéro de facture", new ExternalResource("rest/report/report/" + pmsi.getRecordid() + "/factures.pdf?order=facture")));
+				links.getLast().setTargetName("facture_" + pmsi.getFiness() + ".pdf");
+				links.add(new Link("Factures ordonnées selon ordre du rsf", new ExternalResource("rest/report/report/" + pmsi.getRecordid() + "/factures.pdf?order=rsf")));
+				links.getLast().setTargetName("facture_" + pmsi.getFiness() + ".pdf");
 				break;
 			case sejours:
-				links.add(new Link("Séjours triés selon numéro de rss", new ExternalResource("rest/report/report/" + pmsi.recordid + "/sejours.pdf")));
-				links.getLast().setTargetName("sejour_" + pmsi.finess + ".pdf");
+				links.add(new Link("Séjours triés selon numéro de rss", new ExternalResource("rest/report/report/" + pmsi.getRecordid() + "/sejours.pdf")));
+				links.getLast().setTargetName("sejour_" + pmsi.getFiness() + ".pdf");
 				break;
 			}
 			return links;

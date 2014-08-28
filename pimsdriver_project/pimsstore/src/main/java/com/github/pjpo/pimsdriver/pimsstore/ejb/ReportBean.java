@@ -102,6 +102,7 @@ public class ReportBean implements Report {
 		 query.where(predicate);
 	    
 		 // GETS RESULTS
+		 @SuppressWarnings("unused")
 		 Object result = em.createQuery(select).getSingleResult();
 		 
 		 return null;
