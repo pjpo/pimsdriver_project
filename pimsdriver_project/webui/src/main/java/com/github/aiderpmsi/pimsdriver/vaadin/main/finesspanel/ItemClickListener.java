@@ -5,9 +5,8 @@ import com.github.pjpo.pimsdriver.pimsstore.entities.UploadedPmsi;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.event.ItemClickEvent;
 
+@SuppressWarnings("serial")
 public class ItemClickListener implements ItemClickEvent.ItemClickListener {
-
-	private static final long serialVersionUID = 822165023770852409L;
 
 	private final RootWindow rootWindow;
 	

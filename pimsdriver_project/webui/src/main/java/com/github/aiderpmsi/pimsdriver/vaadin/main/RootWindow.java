@@ -35,7 +35,7 @@ public class RootWindow extends CssLayout {
 	}
 	
 	public void setUploadSelected(final UploadedPmsi model) {
-		splitPanel.getContentPanel().setUpload(null);
+		splitPanel.getContentPanel().setUpload(model);
 		menuBar.setUpload(model);
 	}
 	

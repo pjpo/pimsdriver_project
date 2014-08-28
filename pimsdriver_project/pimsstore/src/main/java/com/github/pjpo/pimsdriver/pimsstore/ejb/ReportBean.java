@@ -43,10 +43,12 @@ public class ReportBean implements Report {
 	private DataSourceProvider dataSourceProvider;
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public LinkedHashMap<String, Long> readPmsiOverview(
 			UploadedPmsi model, String headerName) {
-		try (final Connection con = dataSourceProvider.getConnection()) {
+		// SPECIFIC TO ECLIPSELINK
+		Connection con = em.unwrap(Connection.class);
+		try {
 			return DTOEncloser.execute(con, () -> ReportDTO.readPmsiOverview(con, model, headerName));
 		} catch (Throwable e) {
 			LOGGER.log(Level.WARNING, "Error when retrieving finesses", e);
