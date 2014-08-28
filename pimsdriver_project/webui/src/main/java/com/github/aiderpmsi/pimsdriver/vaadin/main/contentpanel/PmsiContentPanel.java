@@ -1,5 +1,11 @@
 package com.github.aiderpmsi.pimsdriver.vaadin.main.contentpanel;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map.Entry;
@@ -9,8 +15,6 @@ import javax.naming.InitialContext;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
 
-import com.github.aiderpmsi.pimsdriver.db.actions.NavigationActions;
-import com.github.aiderpmsi.pimsdriver.dto.model.BaseRsfA;
 import com.github.aiderpmsi.pimsdriver.vaadin.main.MenuBar;
 import com.github.aiderpmsi.pimsdriver.vaadin.main.SplitPanel;
 import com.github.aiderpmsi.pimsdriver.vaadin.main.contentpanel.pmsidetails.PmsiDetailsWindow;
@@ -19,7 +23,12 @@ import com.github.aiderpmsi.pimsdriver.vaadin.utils.LazyColumnType;
 import com.github.aiderpmsi.pimsdriver.vaadin.utils.LazyTable;
 import com.github.aiderpmsi.pimsdriver.vaadin.utils.aop.ActionEncloser;
 import com.github.aiderpmsi.pimsdriver.vaadin.utils.aop.ActionHandlerEncloser;
+import com.github.pjpo.commons.predicates.And;
+import com.github.pjpo.commons.predicates.Compare;
+import com.github.pjpo.commons.predicates.Compare.Type;
+import com.github.pjpo.commons.predicates.Filter;
 import com.github.pjpo.pimsdriver.pimsstore.ejb.Report;
+import com.github.pjpo.pimsdriver.pimsstore.entities.RsfA;
 import com.github.pjpo.pimsdriver.pimsstore.entities.UploadedPmsi;
 import com.vaadin.event.Action;
 import com.vaadin.ui.CssLayout;
@@ -44,6 +53,11 @@ public class PmsiContentPanel extends VerticalLayout {
 	
 	private final Report report = (Report) ActionEncloser.execute((throwable) -> "EJB report not found",
 			() -> new InitialContext().lookup("java:global/business/pimsstore-0.0.1-SNAPSHOT/ReportBean!com.github.pjpo.pimsdriver.pimsstore.ejb.Report"));
+
+	private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	
+	private static DecimalFormat moneyFormat =
+			new DecimalFormat("+#,##0.00;-#,##0.00", new DecimalFormatSymbols(Locale.FRANCE));
 
 	public PmsiContentPanel(SplitPanel splitPanel) {
 		super();
@@ -98,8 +112,8 @@ public class PmsiContentPanel extends VerticalLayout {
 		
         // COLUMNS DEFINITIONS
         final LazyColumnType[] cols = new LazyColumnType[] {
-        		new LazyColumnType("pmel_id", Long.class, null, null),
-        		new LazyColumnType("pmel_line", Long.class, "Ligne", Align.RIGHT),
+        		new LazyColumnType("recordId", Long.class, null, null),
+        		new LazyColumnType("lineInPmsi", Long.class, "Ligne", Align.RIGHT),
         		new LazyColumnType("numrss", String.class, "Rss", Align.LEFT),
         		new LazyColumnType("numlocalsejour", String.class, "Séjour", Align.LEFT),
         		new LazyColumnType("numrum", String.class, "Rum", Align.LEFT),
@@ -109,12 +123,14 @@ public class PmsiContentPanel extends VerticalLayout {
         		new LazyColumnType("dp", String.class, "DP", Align.CENTER),
         		new LazyColumnType("dr", String.class, "DR", Align.CENTER),
         		new LazyColumnType("nbseances", String.class, "Séances", Align.RIGHT),
-        		new LazyColumnType("formatteddateentree", String.class, "Entrée", Align.CENTER),
-        		new LazyColumnType("formatteddatesortie", String.class, "Sortie", Align.CENTER)
+        		new LazyColumnType("dateentree", String.class, "Entrée", Align.CENTER),
+        		new LazyColumnType("datesortie", String.class, "Sortie", Align.CENTER)
         };
 
-        final Table table = new LazyTable(cols, Locale.FRANCE, datasContainer);
-
+        final LazyTable table = new LazyTable(cols, Locale.FRANCE, datasContainer);
+        table.addFormatter("dateentree", dateFormat);
+        table.addFormatter("datesortie", dateFormat);
+        
         table.setSelectable(true);
         table.setSizeFull();
         table.setCaption("Séjours");
@@ -123,40 +139,47 @@ public class PmsiContentPanel extends VerticalLayout {
 	}
 
 	private Table createFactTable(final MenuBar.MenuBarSelected type, final UploadedPmsi model) {
-        // RSFA CONTAINER
+		// FILTER FOR THIS TABLE
+		final Filter rootFilter = new And(new Compare<Long>("recordId", model.getRecordid(), Type.EQUAL));
+
+		// RSFA CONTAINER
         final LazyQueryContainer datasContainer = new LazyQueryContainer(
         		new LazyQueryDefinition(false, 1000, "pmel_id"),
-        		new FacturesQueryFactory(model.getRecordid(), getSplitPanel().getRootWindow().getMainApplication().getServletContext()));
+        		new FacturesQueryFactory(report, rootFilter));
 
         // COLUMNS DEFINITIONS
         final LazyColumnType[] cols = new LazyColumnType[] {
-        		new LazyColumnType("pmel_id", Long.class, null, null),
-        		new LazyColumnType("pmel_line", Long.class, "Ligne", Align.RIGHT),
+        		new LazyColumnType("recordId", Long.class, null, null),
+        		new LazyColumnType("lineInPmsi", Long.class, "Ligne", Align.RIGHT),
         		new LazyColumnType("numfacture", String.class, "Facture", Align.LEFT),
         		new LazyColumnType("numrss", String.class, "Rss", Align.LEFT),
         		new LazyColumnType("codess", String.class, "Code Sécu", Align.LEFT),
         		new LazyColumnType("sexe", String.class, "Sexe", Align.CENTER),
-        		new LazyColumnType("formatteddatenaissance", String.class, "Naissance", Align.CENTER),
-        		new LazyColumnType("formatteddateentree", String.class, "Entrée", Align.CENTER),
-        		new LazyColumnType("formatteddatesortie", String.class, "Sortie", Align.CENTER),
-        		new LazyColumnType("formattedtotalfacturehonoraire", String.class, "Honoraires", Align.RIGHT),
-        		new LazyColumnType("formattedtotalfactureph", String.class, "Prestations", Align.RIGHT),
+        		new LazyColumnType("datenaissance", Date.class, "Naissance", Align.CENTER),
+        		new LazyColumnType("dateentree", Date.class, "Entrée", Align.CENTER),
+        		new LazyColumnType("datesortie", Date.class, "Sortie", Align.CENTER),
+        		new LazyColumnType("totalfacturehonoraire", BigDecimal.class, "Honoraires", Align.RIGHT),
+        		new LazyColumnType("totalfactureph", BigDecimal.class, "Prestations", Align.RIGHT),
         		new LazyColumnType("etatliquidation", String.class, "Liquidation", Align.RIGHT)
         };
         
-        final Table table = new LazyTable(cols, Locale.FRANCE, datasContainer);
-
+        final LazyTable table = new LazyTable(cols, Locale.FRANCE, datasContainer);
+        table.addFormatter("dateentree", dateFormat);
+        table.addFormatter("datesortie", dateFormat);
+        table.addFormatter("totalfacturehonoraire", moneyFormat);
+        table.addFormatter("totalfactureph", moneyFormat);
+        
+        
         table.setSelectable(true);
         table.setSizeFull();
         table.setCaption("Factures");
 
         // FILLS THE SUMMARY
-        final BaseRsfA summary = ActionEncloser.execute((exception) -> "Erreur de lecture du résumé des factures",
-        		() -> new NavigationActions(getSplitPanel().getRootWindow().getMainApplication().getServletContext()).GetFacturesSummary(model.getRecordid()));
+        final RsfA summary = report.getRsfASummary(Arrays.asList(rootFilter));
         
         table.setFooterVisible(true);
-        table.setColumnFooter("formattedtotalfacturehonoraire", summary.getFormattedtotalfacturehonoraire());
-        table.setColumnFooter("formattedtotalfactureph", summary.getFormattedtotalfactureph());
+        table.setColumnFooter("totalfacturehonoraire",  moneyFormat.format(summary.getTotalfacturehonoraire()));
+        table.setColumnFooter("totalfactureph", moneyFormat.format(summary.getTotalfactureph()));
         
         table.addActionHandler(
         		new ActionHandlerEncloser(ACTIONS[0], (action, sender, target) -> {

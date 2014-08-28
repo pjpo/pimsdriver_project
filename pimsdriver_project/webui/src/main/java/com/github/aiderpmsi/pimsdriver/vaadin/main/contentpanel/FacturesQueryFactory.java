@@ -1,109 +1,67 @@
 package com.github.aiderpmsi.pimsdriver.vaadin.main.contentpanel;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
-
-import javax.servlet.ServletContext;
 
 import org.vaadin.addons.lazyquerycontainer.Query;
 import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 import org.vaadin.addons.lazyquerycontainer.QueryFactory;
 
-import com.github.aiderpmsi.pimsdriver.db.actions.ActionException;
-import com.github.aiderpmsi.pimsdriver.db.actions.NavigationActions;
-import com.github.aiderpmsi.pimsdriver.db.vaadin.query.BaseQuery;
-import com.github.aiderpmsi.pimsdriver.db.vaadin.query.BaseQuery.BaseQueryInit;
-import com.github.aiderpmsi.pimsdriver.db.vaadin.query.DBQueryMapping;
-import com.github.aiderpmsi.pimsdriver.db.vaadin.query.Entry;
-import com.github.aiderpmsi.pimsdriver.dto.model.BaseRsfA;
-import com.vaadin.data.Container.Filter;
-import com.vaadin.data.util.filter.Compare;
-import com.vaadin.data.util.sqlcontainer.query.OrderBy;
+import com.github.aiderpmsi.pimsdriver.db.vaadin.query.VaadinToCommonsPredicates;
+import com.github.pjpo.commons.predicates.Filter;
+import com.github.pjpo.commons.predicates.OrderBy;
+import com.github.pjpo.pimsdriver.pimsstore.ejb.Report;
+import com.github.pjpo.pimsdriver.pimsstore.entities.RsfA;
+import com.vaadin.data.Item;
+import com.vaadin.data.util.BeanItem;
 
 public class FacturesQueryFactory implements QueryFactory {
 	
-	private final Object[][] mappings = new Object[][] {
-			{"pmel_id", "pmel_id"},
-			{"pmel_root", "pmel_root"},
-			{"pmel_position", "pmel_position"},
-			{"pmel_line", "pmel_line"},
-			{"numfacture", "trim(numfacture)"},
-			{"numrss", "trim(numrss)"},
-			{"codess", "trim(codess)"},
-			{"sexe", "trim(sexe)"},
-			{"formatteddatenaissance", "cast_to_date(datenaissance, NULL)"},
-			{"formatteddateentree", "cast_to_date(dateentree, NULL)"},
-			{"formatteddatesortie", "cast_to_date(datesortie, NULL)"},
-			{"formattedtotalfacturehonoraire", "cast_to_int(totalfacturehonoraire, NULL)"},
-			{"formattedtotalfactureph", "cast_to_int(totalfactureph, NULL)"},
-			{"etatliquidation", "etatliquidation"}
-	};
-
-	private final FacturesQueryInit facturesQueryInit;
+	final private Report report;
 	
-	private final DBQueryMapping mapping;
+	final private Filter rootFilter;
 	
-	public FacturesQueryFactory(final Long pmel_root, final ServletContext context) {
-		// CREATES THE QUERY INITIALIZER
-		facturesQueryInit = new FacturesQueryInit(pmel_root, context);
-		// CREATES THE MAPPING
-		mapping = new DBQueryMapping(mappings);
+	public FacturesQueryFactory(
+			final Report report,
+			final Filter rootFilter) {
+		this.report = report;
+		this.rootFilter = rootFilter;
 	}
 	
 	@Override
-	public Query constructQuery(QueryDefinition qd) {
-		return new BaseQuery<>(facturesQueryInit, mapping, qd);
+	public Query constructQuery(final QueryDefinition qd) {
+		final List<Filter> filters = VaadinToCommonsPredicates.convertFilters(qd.getFilters());
+		filters.add(rootFilter);
+		List<OrderBy> orders = VaadinToCommonsPredicates.convertOrderBys(
+				qd.getSortablePropertyIds(), qd.getSortPropertyAscendingStates());
+		
+		return new Query() {
+			@Override public int size() {
+				return report.getRsfASize(filters).intValue();
+			}
+			
+			@Override public void saveItems(List<Item> arg0, List<Item> arg1, List<Item> arg2) {
+				throw new UnsupportedOperationException();
+			}
+			
+			@Override
+			public List<Item> loadItems(final int first, final int count) {
+				final List<Item> items = new ArrayList<Item>(count);
+				for (RsfA bean : report.getRsfAList(filters, orders, first, count)) {
+					items.add(new BeanItem<RsfA>(bean));
+				}
+				return items;
+			}
+			
+			@Override public boolean deleteAllItems() {
+				throw new UnsupportedOperationException();
+			}
+			
+			@Override public Item constructItem() {
+				return new BeanItem<RsfA>(new RsfA());
+			}
+		};
+
 	}
 
-	public class FacturesQueryInit implements BaseQueryInit<BaseRsfA> {
-
-		private final Long pmel_root;
-		
-		private final ServletContext context;
-		
-		public FacturesQueryInit(final Long pmel_root, final ServletContext context) {
-			this.pmel_root = pmel_root;
-			this.context = context;
-		}
-		
-		@Override
-		public void initFilters(List<Filter> filters) {
-			filters.add(new Compare.Equal("pmel_root", pmel_root));
-		}
-
-		@Override
-		public void initOrders(LinkedList<Entry<Object, Boolean>> orderbys) {
-			if (orderbys.size() == 0) {
-				Entry<Object, Boolean> entry = new Entry<>((Object)"pmel_position", true);
-				orderbys.add(entry);
-			}
-		}
-
-		@Override
-		public BaseRsfA constructBean() {
-			return new BaseRsfA();
-		}
-
-		@Override
-		public List<BaseRsfA> loadBeans(List<Filter> filters,
-				List<OrderBy> orderBys, int startIndex, int count)
-				throws ActionException {
-				return new NavigationActions(context).getFactures(filters, orderBys, startIndex, count);
-		}
-
-		@Override
-		public String loadBeansError(Throwable e) {
-			return "Erreur de lecture de la liste des factures";
-		}
-
-		@Override
-		public int size(List<Filter> Filters) throws ActionException {
-			return new NavigationActions(context).getFacturesSize(Filters);
-		}
-
-		@Override
-		public String sizeError(Throwable e) {
-			return "Erreur de lecture de la liste des factures";
-		}
-	};
 }
