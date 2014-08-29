@@ -5,6 +5,8 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -51,8 +53,9 @@ public class RssMain {
 	private String ghm;
 	
 	@XmlElement
-	@Column(name = "ghmcorrige")
-	private String ghmcorrige;
+	@OneToOne
+	@JoinColumn(name = "pmgr_id")
+	private Regroup regroup;
 
 	@XmlElement
 	@Column(name = "dp")
@@ -140,12 +143,12 @@ public class RssMain {
 		this.ghm = ghm;
 	}
 
-	public String getGhmcorrige() {
-		return ghmcorrige;
+	public Regroup getRegroup() {
+		return regroup;
 	}
 
-	public void setGhmcorrige(String ghmcorrige) {
-		this.ghmcorrige = ghmcorrige;
+	public void setRegroup(Regroup regroup) {
+		this.regroup = regroup;
 	}
 
 	public String getDp() {
