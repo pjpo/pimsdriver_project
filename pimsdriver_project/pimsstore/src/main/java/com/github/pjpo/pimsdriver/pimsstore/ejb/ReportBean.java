@@ -104,10 +104,13 @@ public class ReportBean implements Report {
 		 query.where(predicate);
 	    
 		 // GETS RESULTS
-		 @SuppressWarnings("unused")
-		 Object result = em.createQuery(query).getSingleResult();
+		 Object[] resultObject = (Object[]) em.createQuery(query).getSingleResult();
 		 
-		 return null;
+		 RsfA result = new RsfA();
+		 result.setTotalfacturehonoraire((Long)resultObject[0]); 
+		 result.setTotalfactureph((Long)resultObject[1]);
+
+		 return result;
 
 	}
 	

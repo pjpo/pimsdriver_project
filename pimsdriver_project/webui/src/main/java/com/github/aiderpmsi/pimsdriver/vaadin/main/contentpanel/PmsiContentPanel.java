@@ -54,9 +54,12 @@ public class PmsiContentPanel extends VerticalLayout {
 	private final Report report = (Report) ActionEncloser.execute((throwable) -> "EJB report not found",
 			() -> new InitialContext().lookup("java:global/business/pimsstore-0.0.1-SNAPSHOT/ReportBean!com.github.pjpo.pimsdriver.pimsstore.ejb.Report"));
 
-	private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	/** Filter for the selected upload */
+	private Filter rootFilter;
 	
-	private static DecimalFormat moneyFormat =
+	private final static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	
+	private final static DecimalFormat moneyFormat =
 			new DecimalFormat("+#,##0.00;-#,##0.00", new DecimalFormatSymbols(Locale.FRANCE));
 
 	public PmsiContentPanel(SplitPanel splitPanel) {
@@ -76,9 +79,11 @@ public class PmsiContentPanel extends VerticalLayout {
 		body.removeAllComponents();
 		header.removeAllComponents();
 
-		// IF STATUS IS NOT NULL, ADD HEADER CONTENT
+		// IF STATUS IS NOT NULL, ADD HEADER CONTENT AND SETS FILTER
 		if (model != null)  {
-
+			// SETS FILTER
+			 rootFilter = new And(new Compare<Long>("uploadRecordId", model.getRecordid(), Type.EQUAL));
+			 
 			// READ OVERVIEW FOR BOTH RSF AND RSS
 			final LinkedHashMap<String, LinkedHashMap<String, Long>> overviews = new LinkedHashMap<>();
 			overviews.put("RSF", report.readPmsiOverview(model, "rsfheader"));
@@ -139,8 +144,6 @@ public class PmsiContentPanel extends VerticalLayout {
 	}
 
 	private Table createFactTable(final MenuBar.MenuBarSelected type, final UploadedPmsi model) {
-		// FILTER FOR THIS TABLE
-		final Filter rootFilter = new And(new Compare<Long>("uploadRecordId", model.getRecordid(), Type.EQUAL));
 
 		// RSFA CONTAINER
         final LazyQueryContainer datasContainer = new LazyQueryContainer(
