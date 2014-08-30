@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 
@@ -21,6 +22,7 @@ import com.github.aiderpmsi.pimsdriver.vaadin.main.contentpanel.pmsidetails.Pmsi
 import com.github.aiderpmsi.pimsdriver.vaadin.main.contentpanel.pmsisource.PmsiSourceWindow;
 import com.github.aiderpmsi.pimsdriver.vaadin.utils.LazyColumnType;
 import com.github.aiderpmsi.pimsdriver.vaadin.utils.LazyTable;
+import com.github.aiderpmsi.pimsdriver.vaadin.utils.ReportEntityQueryFactory;
 import com.github.aiderpmsi.pimsdriver.vaadin.utils.aop.ActionEncloser;
 import com.github.aiderpmsi.pimsdriver.vaadin.utils.aop.ActionHandlerEncloser;
 import com.github.pjpo.commons.predicates.And;
@@ -29,6 +31,7 @@ import com.github.pjpo.commons.predicates.Compare.Type;
 import com.github.pjpo.commons.predicates.Filter;
 import com.github.pjpo.pimsdriver.pimsstore.ejb.Report;
 import com.github.pjpo.pimsdriver.pimsstore.entities.RsfA;
+import com.github.pjpo.pimsdriver.pimsstore.entities.RssMain;
 import com.github.pjpo.pimsdriver.pimsstore.entities.UploadedPmsi;
 import com.vaadin.event.Action;
 import com.vaadin.ui.CssLayout;
@@ -113,7 +116,7 @@ public class PmsiContentPanel extends VerticalLayout {
         // RSS MAIN CONTAINER
         final LazyQueryContainer datasContainer = new LazyQueryContainer(
         		new LazyQueryDefinition(false, 1000, "pmel_id"),
-        		new SejoursQueryFactory(report, rootFilter));
+        		new ReportEntityQueryFactory<RssMain>(RssMain.class, report, rootFilter));
 		
         // COLUMNS DEFINITIONS
         final LazyColumnType[] cols = new LazyColumnType[] {
@@ -148,7 +151,7 @@ public class PmsiContentPanel extends VerticalLayout {
 		// RSFA CONTAINER
         final LazyQueryContainer datasContainer = new LazyQueryContainer(
         		new LazyQueryDefinition(false, 1000, "recordId"),
-        		new FacturesQueryFactory(report, rootFilter));
+        		new ReportEntityQueryFactory<RsfA>(RsfA.class, report, rootFilter));
 
         // COLUMNS DEFINITIONS
         final LazyColumnType[] cols = new LazyColumnType[] {
@@ -178,11 +181,12 @@ public class PmsiContentPanel extends VerticalLayout {
         table.setCaption("Factures");
 
         // FILLS THE SUMMARY
-        final RsfA summary = report.getRsfASummary(Arrays.asList(rootFilter));
+        final List<Long> summary = report.getSummary(RsfA.class, Arrays.asList(rootFilter), "totalfacturehonoraire",
+        		"totalfactureph");
         
         table.setFooterVisible(true);
-        table.setColumnFooter("totalfacturehonoraire",  moneyFormat.format(summary.getTotalfacturehonoraire()));
-        table.setColumnFooter("totalfactureph", moneyFormat.format(summary.getTotalfactureph()));
+        table.setColumnFooter("totalfacturehonoraire",  moneyFormat.format(summary.get(0)));
+        table.setColumnFooter("totalfactureph", moneyFormat.format(summary.get(1)));
         
         table.addActionHandler(
         		new ActionHandlerEncloser(ACTIONS[0], (action, sender, target) -> {
