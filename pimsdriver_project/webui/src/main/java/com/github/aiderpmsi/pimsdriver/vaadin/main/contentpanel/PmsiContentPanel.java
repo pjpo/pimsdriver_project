@@ -113,7 +113,7 @@ public class PmsiContentPanel extends VerticalLayout {
         // RSS MAIN CONTAINER
         final LazyQueryContainer datasContainer = new LazyQueryContainer(
         		new LazyQueryDefinition(false, 1000, "pmel_id"),
-        		new SejoursQueryFactory(model.getRecordid(), report));
+        		new SejoursQueryFactory(report, rootFilter));
 		
         // COLUMNS DEFINITIONS
         final LazyColumnType[] cols = new LazyColumnType[] {

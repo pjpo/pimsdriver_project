@@ -25,6 +25,10 @@ public class RssMain {
 	private Long recordId;
 	
 	@XmlElement
+	@Column(name = "pmel_root")
+	private Long uploadRecordId;
+
+	@XmlElement
 	@Column(name = "pmel_position")
 	private Long positionInPmsi;
 	
@@ -85,6 +89,14 @@ public class RssMain {
 
 	public void setRecordId(Long recordId) {
 		this.recordId = recordId;
+	}
+
+	public Long getUploadRecordId() {
+		return uploadRecordId;
+	}
+
+	public void setUploadRecordId(Long uploadRecordId) {
+		this.uploadRecordId = uploadRecordId;
 	}
 
 	public Long getPositionInPmsi() {

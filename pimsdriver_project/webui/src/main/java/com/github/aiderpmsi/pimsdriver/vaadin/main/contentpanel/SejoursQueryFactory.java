@@ -8,9 +8,6 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 import org.vaadin.addons.lazyquerycontainer.QueryFactory;
 
 import com.github.aiderpmsi.pimsdriver.db.vaadin.query.VaadinToCommonsPredicates;
-import com.github.pjpo.commons.predicates.And;
-import com.github.pjpo.commons.predicates.Compare;
-import com.github.pjpo.commons.predicates.Compare.Type;
 import com.github.pjpo.commons.predicates.Filter;
 import com.github.pjpo.commons.predicates.OrderBy;
 import com.github.pjpo.pimsdriver.pimsstore.ejb.Report;
@@ -20,21 +17,19 @@ import com.vaadin.data.util.BeanItem;
 
 public class SejoursQueryFactory implements QueryFactory {
 	
-	final private Long recordId;
+	final private Filter rootFilter;
 
 	final private Report report;
 	
-	public SejoursQueryFactory(
-			final Long recordId,
-			final Report report) {
-		this.recordId = recordId;
+	public SejoursQueryFactory(Report report, Filter rootFilter) {
 		this.report = report;
+		this.rootFilter = rootFilter;
 	}
-	
+
 	@Override
 	public Query constructQuery(final QueryDefinition qd) {
 		List<Filter> filters = VaadinToCommonsPredicates.convertFilters(qd.getFilters());
-		filters.add(new And(new Compare<Long>("recordId", recordId, Type.EQUAL)));
+		filters.add(rootFilter);
 		List<OrderBy> orders = VaadinToCommonsPredicates.convertOrderBys(
 				qd.getSortablePropertyIds(), qd.getSortPropertyAscendingStates());
 		
