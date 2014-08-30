@@ -20,11 +20,9 @@ import com.vaadin.ui.Table.Align;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+@SuppressWarnings("serial")
 public class PmsiDetailsWindow extends Window {
 	
-	/** Generated serial Id */
-	private static final long serialVersionUID = -7803472921198470202L;
-
 	private final ArrayList<Table> tables;
 	
 	private final ServletContext context;

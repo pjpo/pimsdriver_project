@@ -37,7 +37,7 @@ public class RsfA {
 	@XmlElement
 	@Column(name = "pmel_line")
 	private Long lineInPmsi;
-		
+
 	@XmlElement
 	@Column(name = "numfacture")
 	private String numfacture;

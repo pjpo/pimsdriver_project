@@ -1,6 +1,7 @@
 package com.github.pjpo.pimsdriver.pimsstore.ejb;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -26,8 +27,6 @@ import com.github.pjpo.pimsdriver.datasource.DataSourceProvider;
 import com.github.pjpo.pimsdriver.pimsstore.ReportDTO;
 import com.github.pjpo.pimsdriver.pimsstore.aop.DTOEncloser;
 import com.github.pjpo.pimsdriver.pimsstore.entities.JPAQueryBuilder;
-import com.github.pjpo.pimsdriver.pimsstore.entities.RsfA;
-import com.github.pjpo.pimsdriver.pimsstore.entities.RssMain;
 import com.github.pjpo.pimsdriver.pimsstore.entities.UploadedPmsi;
 
 @Stateless
@@ -58,57 +57,46 @@ public class ReportBean implements Report {
 
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	public List<RssMain> getRssMainList(final List<Filter> filters, final List<OrderBy> orders,
+	public <T> List<T> getList(final Class<T> clazz, final List<Filter> filters, final List<OrderBy> orders,
 			final Integer first, final Integer rows) {
-		return JPAQueryBuilder.getList(em, RssMain.class, filters, orders, first, rows);
+		return JPAQueryBuilder.getList(em, clazz, filters, orders, first, rows);
 	}
 
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	public Long getRssMainSize(final List<Filter> filters) {
-		return JPAQueryBuilder.getCount(em, RssMain.class, filters);
+	public <T> Long getSize(final Class<T> clazz, final List<Filter> filters) {
+		return JPAQueryBuilder.getCount(em, clazz, filters);
 	}
 
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	public List<RsfA> getRsfAList(
-			List<Filter> filters, List<OrderBy> orders,
-			Integer first, Integer rows) {
-		return JPAQueryBuilder.getList(em, RsfA.class, filters, orders, first, rows);
-	}
-
-	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	public Long getRsfASize(List<Filter> filters) {
-		return JPAQueryBuilder.getCount(em, RsfA.class, filters);
-	}
-
-	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	public RsfA getRsfASummary(List<Filter> filters) {
+	public <T> List<Long> getSummary(final Class<T> clazz, final List<Filter> filters, final String... sums) {
 		
 		final CriteriaBuilder builder = em.getCriteriaBuilder();
 		 
 		 // SELECT FROM RSFA
 		 final CriteriaQuery<Object> query = builder.createQuery();
-		 final Root<RsfA> rsfARoot = query.from(RsfA.class);
+		 final Root<T> root = query.from(clazz);
 		 
 		 // SUMS
-		 Expression<?> sumTotalfacturehonoraire = builder.sum(rsfARoot.get("totalfacturehonoraire"));
-		 Expression<?> sumTotalfactureph = builder.sum(rsfARoot.get("totalfactureph"));
+		 Expression<?>[] aggregates = new Expression<?>[sums.length];
+		 for (int i = 0 ; i < sums.length ; i++) {
+			 aggregates[i] = builder.sum(root.get(sums[i]));
+		 }
 
-		 query.multiselect(sumTotalfacturehonoraire, sumTotalfactureph);
+		 query.multiselect(aggregates);
 		 
 		 // WHERE PREDICATES
-		 final Predicate predicate = JPAQueryBuilder.convertPredicateAnd(filters, builder, rsfARoot);
+		 final Predicate predicate = JPAQueryBuilder.convertPredicateAnd(filters, builder, root);
 		 query.where(predicate);
 	    
 		 // GETS RESULTS
-		 Object[] resultObject = (Object[]) em.createQuery(query).getSingleResult();
+		 final Object[] resultObjects = (Object[]) em.createQuery(query).getSingleResult();
 		 
-		 RsfA result = new RsfA();
-		 result.setTotalfacturehonoraire((Long)resultObject[0]); 
-		 result.setTotalfactureph((Long)resultObject[1]);
+		 final ArrayList<Long> result = new ArrayList<>(resultObjects.length);
+		 for (final Object resultObject : resultObjects) {
+			 result.add((Long) resultObject);
+		 }
 
 		 return result;
 
