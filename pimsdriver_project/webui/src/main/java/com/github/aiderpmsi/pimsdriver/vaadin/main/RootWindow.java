@@ -4,10 +4,8 @@ import com.github.pjpo.pimsdriver.pimsstore.entities.UploadedPmsi;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Label;
 
+@SuppressWarnings("serial")
 public class RootWindow extends CssLayout {
-
-	/** Generated Serial Id */
-	private static final long serialVersionUID = -8909569781887366046L;
 
 	private final Label header;
 	
@@ -40,7 +38,7 @@ public class RootWindow extends CssLayout {
 	}
 	
 	public void setMenuNavigationSelected(final UploadedPmsi model, final MenuBar.MenuBarSelected type) {
-		splitPanel.getContentPanel().show(type, null);
+		splitPanel.getContentPanel().show(type, model);
 	}
 
 	public Label getHeader() {

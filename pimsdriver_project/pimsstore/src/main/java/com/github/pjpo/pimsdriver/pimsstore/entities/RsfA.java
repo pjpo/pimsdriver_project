@@ -1,6 +1,5 @@
 package com.github.pjpo.pimsdriver.pimsstore.entities;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -22,6 +21,10 @@ public class RsfA {
 	@Id
 	@Column(name = "pmel_id")
 	private Long recordId;
+	
+	@XmlElement
+	@Column(name = "pmel_root")
+	private Long uploadRecordId;
 
 	@XmlElement
 	@Column(name = "pmel_position")
@@ -68,11 +71,11 @@ public class RsfA {
 
 	@XmlElement
 	@Column(name = "totalfacturehonoraire")
-	private BigDecimal totalfacturehonoraire;
+	private Long totalfacturehonoraire;
 
 	@XmlElement
 	@Column(name = "totalfactureph")
-	private BigDecimal totalfactureph;
+	private Long totalfactureph;
 		
 	@XmlElement
 	@Column(name = "etatliquidation")
@@ -84,6 +87,14 @@ public class RsfA {
 
 	public void setRecordId(Long recordId) {
 		this.recordId = recordId;
+	}
+
+	public Long getUploadRecordId() {
+		return uploadRecordId;
+	}
+
+	public void setUploadRecordId(Long uploadRecordId) {
+		this.uploadRecordId = uploadRecordId;
 	}
 
 	public Long getPositionInPmsi() {
@@ -166,19 +177,19 @@ public class RsfA {
 		this.datesortie = datesortie;
 	}
 
-	public BigDecimal getTotalfacturehonoraire() {
+	public Long getTotalfacturehonoraire() {
 		return totalfacturehonoraire;
 	}
 
-	public void setTotalfacturehonoraire(BigDecimal totalfacturehonoraire) {
+	public void setTotalfacturehonoraire(Long totalfacturehonoraire) {
 		this.totalfacturehonoraire = totalfacturehonoraire;
 	}
 
-	public BigDecimal getTotalfactureph() {
+	public Long getTotalfactureph() {
 		return totalfactureph;
 	}
 
-	public void setTotalfactureph(BigDecimal totalfactureph) {
+	public void setTotalfactureph(Long totalfactureph) {
 		this.totalfactureph = totalfactureph;
 	}
 

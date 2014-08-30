@@ -67,7 +67,7 @@ public class RssMain {
 	
 	@XmlElement
 	@Column(name = "nbseances")
-	private Integer nbseances;
+	private Long nbseances;
 	
 	@XmlElement
 	@Column(name = "dateentree")
@@ -167,11 +167,11 @@ public class RssMain {
 		this.dr = dr;
 	}
 
-	public Integer getNbseances() {
+	public Long getNbseances() {
 		return nbseances;
 	}
 
-	public void setNbseances(Integer nbseances) {
+	public void setNbseances(Long nbseances) {
 		this.nbseances = nbseances;
 	}
 

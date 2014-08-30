@@ -140,11 +140,11 @@ public class PmsiContentPanel extends VerticalLayout {
 
 	private Table createFactTable(final MenuBar.MenuBarSelected type, final UploadedPmsi model) {
 		// FILTER FOR THIS TABLE
-		final Filter rootFilter = new And(new Compare<Long>("recordId", model.getRecordid(), Type.EQUAL));
+		final Filter rootFilter = new And(new Compare<Long>("uploadRecordId", model.getRecordid(), Type.EQUAL));
 
 		// RSFA CONTAINER
         final LazyQueryContainer datasContainer = new LazyQueryContainer(
-        		new LazyQueryDefinition(false, 1000, "pmel_id"),
+        		new LazyQueryDefinition(false, 1000, "recordId"),
         		new FacturesQueryFactory(report, rootFilter));
 
         // COLUMNS DEFINITIONS

@@ -97,7 +97,7 @@ public class ReportBean implements Report {
 		 Expression<?> sumTotalfacturehonoraire = builder.sum(rsfARoot.get("totalfacturehonoraire"));
 		 Expression<?> sumTotalfactureph = builder.sum(rsfARoot.get("totalfactureph"));
 
-		 CriteriaQuery<Object> select = query.multiselect(sumTotalfacturehonoraire, sumTotalfactureph);
+		 query.multiselect(sumTotalfacturehonoraire, sumTotalfactureph);
 		 
 		 // WHERE PREDICATES
 		 final Predicate predicate = JPAQueryBuilder.convertPredicateAnd(filters, builder, rsfARoot);
@@ -105,7 +105,7 @@ public class ReportBean implements Report {
 	    
 		 // GETS RESULTS
 		 @SuppressWarnings("unused")
-		 Object result = em.createQuery(select).getSingleResult();
+		 Object result = em.createQuery(query).getSingleResult();
 		 
 		 return null;
 
