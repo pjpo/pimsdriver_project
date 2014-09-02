@@ -120,19 +120,19 @@ public class PmsiContentPanel extends VerticalLayout {
 		
         // COLUMNS DEFINITIONS
         final LazyColumnType[] cols = new LazyColumnType[] {
-        		new LazyColumnType("recordId", Long.class, null, null),
-        		new LazyColumnType("lineInPmsi", Long.class, "Ligne", Align.RIGHT),
-        		new LazyColumnType("numrss", String.class, "Rss", Align.LEFT),
-        		new LazyColumnType("numlocalsejour", String.class, "Séjour", Align.LEFT),
-        		new LazyColumnType("numrum", String.class, "Rum", Align.LEFT),
-        		new LazyColumnType("numunitemedicale", String.class, "Unité", Align.LEFT),
-        		new LazyColumnType("ghm", String.class, "GHM", Align.CENTER),
-        		new LazyColumnType("ghmcorrige", String.class, "GHM corrigé", Align.CENTER),
-        		new LazyColumnType("dp", String.class, "DP", Align.CENTER),
-        		new LazyColumnType("dr", String.class, "DR", Align.CENTER),
-        		new LazyColumnType("nbseances", String.class, "Séances", Align.RIGHT),
-        		new LazyColumnType("dateentree", String.class, "Entrée", Align.CENTER),
-        		new LazyColumnType("datesortie", String.class, "Sortie", Align.CENTER)
+        		new LazyColumnType("recordId", Long.class, null, null, true),
+        		new LazyColumnType("lineInPmsi", Long.class, "Ligne", Align.RIGHT, true),
+        		new LazyColumnType("numrss", String.class, "Rss", Align.LEFT, true),
+        		new LazyColumnType("numlocalsejour", String.class, "Séjour", Align.LEFT, true),
+        		new LazyColumnType("numrum", String.class, "Rum", Align.LEFT, true),
+        		new LazyColumnType("numunitemedicale", String.class, "Unité", Align.LEFT, true),
+        		new LazyColumnType("ghm", String.class, "GHM", Align.CENTER, true),
+        		new LazyColumnType("ghmcorrige", String.class, "GHM corrigé", Align.CENTER, false),
+        		new LazyColumnType("dp", String.class, "DP", Align.CENTER, true),
+        		new LazyColumnType("dr", String.class, "DR", Align.CENTER, true),
+        		new LazyColumnType("nbseances", String.class, "Séances", Align.RIGHT, true),
+        		new LazyColumnType("dateentree", String.class, "Entrée", Align.CENTER, true),
+        		new LazyColumnType("datesortie", String.class, "Sortie", Align.CENTER, true)
         };
 
         final LazyTable table = new LazyTable(cols, Locale.FRANCE, datasContainer);
@@ -155,18 +155,18 @@ public class PmsiContentPanel extends VerticalLayout {
 
         // COLUMNS DEFINITIONS
         final LazyColumnType[] cols = new LazyColumnType[] {
-        		new LazyColumnType("recordId", Long.class, null, null),
-        		new LazyColumnType("lineInPmsi", Long.class, "Ligne", Align.RIGHT),
-        		new LazyColumnType("numfacture", String.class, "Facture", Align.LEFT),
-        		new LazyColumnType("numrss", String.class, "Rss", Align.LEFT),
-        		new LazyColumnType("codess", String.class, "Code Sécu", Align.LEFT),
-        		new LazyColumnType("sexe", String.class, "Sexe", Align.CENTER),
-        		new LazyColumnType("datenaissance", Date.class, "Naissance", Align.CENTER),
-        		new LazyColumnType("dateentree", Date.class, "Entrée", Align.CENTER),
-        		new LazyColumnType("datesortie", Date.class, "Sortie", Align.CENTER),
-        		new LazyColumnType("totalfacturehonoraire", BigDecimal.class, "Honoraires", Align.RIGHT),
-        		new LazyColumnType("totalfactureph", BigDecimal.class, "Prestations", Align.RIGHT),
-        		new LazyColumnType("etatliquidation", String.class, "Liquidation", Align.RIGHT)
+        		new LazyColumnType("recordId", Long.class, null, null, true),
+        		new LazyColumnType("lineInPmsi", Long.class, "Ligne", Align.RIGHT, true),
+        		new LazyColumnType("numfacture", String.class, "Facture", Align.LEFT, true),
+        		new LazyColumnType("numrss", String.class, "Rss", Align.LEFT, true),
+        		new LazyColumnType("codess", String.class, "Code Sécu", Align.LEFT, true),
+        		new LazyColumnType("sexe", String.class, "Sexe", Align.CENTER, true),
+        		new LazyColumnType("datenaissance", Date.class, "Naissance", Align.CENTER, true),
+        		new LazyColumnType("dateentree", Date.class, "Entrée", Align.CENTER, true),
+        		new LazyColumnType("datesortie", Date.class, "Sortie", Align.CENTER, true),
+        		new LazyColumnType("totalfacturehonoraire", BigDecimal.class, "Honoraires", Align.RIGHT, true),
+        		new LazyColumnType("totalfactureph", BigDecimal.class, "Prestations", Align.RIGHT, true),
+        		new LazyColumnType("etatliquidation", String.class, "Liquidation", Align.RIGHT, true)
         };
         
         final LazyTable table = new LazyTable(cols, Locale.FRANCE, datasContainer);

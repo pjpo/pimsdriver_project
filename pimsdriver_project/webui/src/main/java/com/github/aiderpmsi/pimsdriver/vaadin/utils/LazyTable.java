@@ -3,7 +3,6 @@ package com.github.aiderpmsi.pimsdriver.vaadin.utils;
 import java.text.Format;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 
 import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
@@ -11,26 +10,24 @@ import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 import com.vaadin.data.Property;
 import com.vaadin.ui.Table;
 
+@SuppressWarnings("serial")
 public class LazyTable extends Table {
-
-	/** Generated id */
-	private static final long serialVersionUID = -8031105462273795086L;
 	
 	private final HashMap<Object, Format> customFormats = new HashMap<>();
 	
-	public LazyTable(LazyColumnType[] columns, Locale locale, LazyQueryContainer c) {
+	public LazyTable(final LazyColumnType[] columns, final Locale locale, final LazyQueryContainer c) {
 		setLocale(locale);
 		
-		List<String> visibleColumns = new LinkedList<>();
-		List<String> columnHeaders = new LinkedList<>();
-		List<Align> columnAlignements = new LinkedList<>();
+		final LinkedList<String> visibleColumns = new LinkedList<>();
+		final LinkedList<String> columnHeaders = new LinkedList<>();
+		final LinkedList<Align> columnAlignements = new LinkedList<>();
 		
-		for (LazyColumnType column : columns) {
-			c.addContainerProperty(column.id, column.clazz, null, true, true);
-			if (column.name != null) {
-				visibleColumns.add(column.id);
-				columnHeaders.add(column.name);
-				columnAlignements.add(column.align);
+		for (final LazyColumnType column : columns) {
+			c.addContainerProperty(column.getId(), column.getClazz(), null, true, column.isSortable());
+			if (column.getName() != null) {
+				visibleColumns.add(column.getId());
+				columnHeaders.add(column.getName());
+				columnAlignements.add(column.getAlign());
 			}
 		}
 

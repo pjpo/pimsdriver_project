@@ -78,13 +78,13 @@ public class PmsiDetailsWindow extends Window {
 
         // COLUMNS DEFINITIONS
 		final LazyColumnType[] cols = new LazyColumnType[] {
-        		new LazyColumnType("pmel_id", Long.class, null, null),
-        		new LazyColumnType("pmel_line", Long.class, "Ligne", Align.RIGHT),
-        		new LazyColumnType("codeccam", String.class, "Acte", Align.CENTER),
-        		new LazyColumnType("formatteddaterealisation", String.class, "Date", Align.CENTER),
-        		new LazyColumnType("phase", String.class, "Phase", Align.CENTER),
-        		new LazyColumnType("activite", String.class, "Activité", Align.CENTER),
-        		new LazyColumnType("nbacte", String.class, "Nombre", Align.RIGHT)
+        		new LazyColumnType("pmel_id", Long.class, null, null, true),
+        		new LazyColumnType("pmel_line", Long.class, "Ligne", Align.RIGHT, true),
+        		new LazyColumnType("codeccam", String.class, "Acte", Align.CENTER, true),
+        		new LazyColumnType("formatteddaterealisation", String.class, "Date", Align.CENTER, true),
+        		new LazyColumnType("phase", String.class, "Phase", Align.CENTER, true),
+        		new LazyColumnType("activite", String.class, "Activité", Align.CENTER, true),
+        		new LazyColumnType("nbacte", String.class, "Nombre", Align.RIGHT, true)
         };
 
         final Table table = new LazyTable(cols, Locale.FRANCE, datasContainer);
@@ -105,9 +105,9 @@ public class PmsiDetailsWindow extends Window {
 
         // COLUMNS DEFINITIONS
 		final LazyColumnType[] cols = new LazyColumnType[] {
-        		new LazyColumnType("pmel_id", Long.class, null, null),
-        		new LazyColumnType("pmel_line", Long.class, "Ligne", Align.RIGHT),
-        		new LazyColumnType("da", String.class, "Diagnostic", Align.CENTER)
+        		new LazyColumnType("pmel_id", Long.class, null, null, true),
+        		new LazyColumnType("pmel_line", Long.class, "Ligne", Align.RIGHT, true),
+        		new LazyColumnType("da", String.class, "Diagnostic", Align.CENTER, true)
         };
 
         final Table table = new LazyTable(cols, Locale.FRANCE, datasContainer);
@@ -128,9 +128,9 @@ public class PmsiDetailsWindow extends Window {
 
         // COLUMNS DEFINITIONS
 		final LazyColumnType[] cols = new LazyColumnType[] {
-        		new LazyColumnType("pmel_id", Long.class, null, null),
-        		new LazyColumnType("pmel_line", Long.class, "Ligne", Align.RIGHT),
-        		new LazyColumnType("dad", String.class, "Diagnostic", Align.CENTER)
+        		new LazyColumnType("pmel_id", Long.class, null, null, true),
+        		new LazyColumnType("pmel_line", Long.class, "Ligne", Align.RIGHT, true),
+        		new LazyColumnType("dad", String.class, "Diagnostic", Align.CENTER, true)
         };
 
         final Table table = new LazyTable(cols, Locale.FRANCE, datasContainer);
@@ -151,14 +151,14 @@ public class PmsiDetailsWindow extends Window {
 
         // COLUMNS DEFINITIONS
 		final LazyColumnType[] cols = new LazyColumnType[] {
-        		new LazyColumnType("pmel_id", Long.class, null, null),
-        		new LazyColumnType("pmel_line", Long.class, "Ligne", Align.RIGHT),
-        		new LazyColumnType("formatteddatedebutsejour", String.class, "Début séjour", Align.CENTER),
-        		new LazyColumnType("formatteddatefinsejour", String.class, "Fin séjour", Align.CENTER),
-        		new LazyColumnType("codeacte", String.class, "Acte", Align.CENTER),
-        		new LazyColumnType("quantite", String.class, "Quantité", Align.RIGHT),
-        		new LazyColumnType("numghs", String.class, "GHS", Align.CENTER),
-        		new LazyColumnType("formattedmontanttotaldepense", String.class, "Entrée", Align.RIGHT)
+        		new LazyColumnType("pmel_id", Long.class, null, null, true),
+        		new LazyColumnType("pmel_line", Long.class, "Ligne", Align.RIGHT, true),
+        		new LazyColumnType("formatteddatedebutsejour", String.class, "Début séjour", Align.CENTER, true),
+        		new LazyColumnType("formatteddatefinsejour", String.class, "Fin séjour", Align.CENTER, true),
+        		new LazyColumnType("codeacte", String.class, "Acte", Align.CENTER, true),
+        		new LazyColumnType("quantite", String.class, "Quantité", Align.RIGHT, true),
+        		new LazyColumnType("numghs", String.class, "GHS", Align.CENTER, true),
+        		new LazyColumnType("formattedmontanttotaldepense", String.class, "Entrée", Align.RIGHT, true)
         };
 
         final Table table = new LazyTable(cols, Locale.FRANCE, datasContainer);
@@ -185,12 +185,12 @@ public class PmsiDetailsWindow extends Window {
 
         // COLUMNS DEFINITIONS
 		final LazyColumnType[] cols = new LazyColumnType[] {
-        		new LazyColumnType("pmel_id", Long.class, null, null),
-        		new LazyColumnType("pmel_line", Long.class, "Ligne", Align.RIGHT),
-        		new LazyColumnType("formatteddateacte", String.class, "Date", Align.CENTER),
-        		new LazyColumnType("codeacte", String.class, "Acte", Align.CENTER),
-        		new LazyColumnType("quantite", String.class, "Quantité", Align.RIGHT),
-        		new LazyColumnType("formattedmontanttotalhonoraire", String.class, "Entrée", Align.RIGHT)
+        		new LazyColumnType("pmel_id", Long.class, null, null, true),
+        		new LazyColumnType("pmel_line", Long.class, "Ligne", Align.RIGHT, true),
+        		new LazyColumnType("formatteddateacte", String.class, "Date", Align.CENTER, true),
+        		new LazyColumnType("codeacte", String.class, "Acte", Align.CENTER, true),
+        		new LazyColumnType("quantite", String.class, "Quantité", Align.RIGHT, true),
+        		new LazyColumnType("formattedmontanttotalhonoraire", String.class, "Entrée", Align.RIGHT, true)
         };
 
         final Table table = new LazyTable(cols, Locale.FRANCE, datasContainer);

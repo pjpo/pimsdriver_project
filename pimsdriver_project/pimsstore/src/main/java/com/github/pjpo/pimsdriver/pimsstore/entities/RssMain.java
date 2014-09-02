@@ -4,12 +4,14 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -57,7 +59,7 @@ public class RssMain {
 	private String ghm;
 	
 	@XmlElement
-	@OneToOne
+	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "pmgr_id")
 	private Regroup regroup;
 
@@ -203,5 +205,13 @@ public class RssMain {
 		this.datesortie = datesortie;
 	}
 
-	
+	@Transient
+	public String getGhmcorrige() {
+		final StringBuilder ghmcorrige = new StringBuilder();
+		ghmcorrige.append(getRegroup().getRacine());
+		ghmcorrige.append(getRegroup().getModalite());
+		ghmcorrige.append(getRegroup().getGravite());
+		ghmcorrige.append(getRegroup().getErreur());
+		return ghmcorrige.toString();
+	}
 }
